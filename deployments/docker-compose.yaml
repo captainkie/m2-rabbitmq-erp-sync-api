@@ -1,0 +1,38 @@
+version: "3.8"
+services:
+  rabbitmq:
+    image: rabbitmq:3.12.6-management-alpine
+    container_name: rabbitmq
+    restart: always
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USERNAME}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    expose:
+      - "15672"
+    volumes:
+      - ${VOLUME_HOME}/api-service/rabbit-mq/data/:/var/lib/rabbitmq
+      - ${VOLUME_HOME}/api-service/rabbit-mq/log/:/var/log/rabbitmq
+    networks:
+      - aws-ec2
+  # server:
+  #   image: server
+  #   build:
+  #     context: .
+  #     dockerfile: cmd/server/Dockerfile
+  #   volumes:
+  #     - /tmp/app:/var/log/app
+  #   ports:
+  #     - "8080:8080"
+  #   environment:
+  #     - APP_ENV=local
+  #     - APP_DSN=postgres://db/go_restful?sslmode=disable&user=postgres&password=postgres
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+networks:
+  aws-ec2:
+    name: aws-ec2-bridge
+    driver: bridge

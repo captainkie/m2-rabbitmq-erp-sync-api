@@ -1,0 +1,369 @@
+basePath: /api
+definitions:
+  github_com_captainkie_websync-api_types_request.CreateDailySalesRequest:
+    properties:
+      OrderID:
+        maxLength: 100
+        minLength: 1
+        type: string
+    required:
+    - OrderID
+    type: object
+  github_com_captainkie_websync-api_types_request.CreateUsersRequest:
+    properties:
+      email:
+        maxLength: 100
+        minLength: 1
+        type: string
+      password:
+        maxLength: 100
+        minLength: 1
+        type: string
+      username:
+        maxLength: 100
+        minLength: 1
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  github_com_captainkie_websync-api_types_request.LoginRequest:
+    properties:
+      password:
+        maxLength: 100
+        minLength: 1
+        type: string
+      username:
+        maxLength: 100
+        minLength: 1
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  github_com_captainkie_websync-api_types_request.UpdateUsersRequest:
+    properties:
+      password:
+        maxLength: 100
+        minLength: 1
+        type: string
+      role:
+        maxLength: 100
+        minLength: 1
+        type: string
+      status:
+        maxLength: 100
+        minLength: 1
+        type: string
+    required:
+    - password
+    - role
+    - status
+    type: object
+  github_com_captainkie_websync-api_types_response.LoginResponse:
+    properties:
+      token:
+        type: string
+      token_type:
+        type: string
+    type: object
+  github_com_captainkie_websync-api_types_response.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+info:
+  contact:
+    name: captainkie
+    url: https://github.com/captainkie
+  description: This is a sync service data from erp to magento 2.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: WebSync API
+  version: 1.0.0
+paths:
+  /authentication/login:
+    post:
+      description: login with username and password
+      parameters:
+      - description: Login
+        in: body
+        name: Request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_captainkie_websync-api_types_request.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_captainkie_websync-api_types_response.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_captainkie_websync-api_types_response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_captainkie_websync-api_types_response.Response'
+      summary: Login
+      tags:
+      - Authentication
+  /authentication/register:
+    post:
+      description: Register to websync systems
+      parameters:
+      - description: Register
+        in: body
+        name: Request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_captainkie_websync-api_types_request.CreateUsersRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_captainkie_websync-api_types_response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_captainkie_websync-api_types_response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_captainkie_websync-api_types_response.Response'
+      summary: Register
+      tags:
+      - Authentication
+  /queue/daily-sales:
+    post:
+      description: create daily sales queue
+      parameters:
+      - description: CreateDailySales
+        in: body
+        name: Request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_captainkie_websync-api_types_request.CreateDailySalesRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_captainkie_websync-api_types_response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_captainkie_websync-api_types_response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_captainkie_websync-api_types_response.Response'
+      security:
+      - BearerAuth: []
+      summary: Daily Sales request queue
+      tags:
+      - Queue
+  /queue/images:
+    get:
+      description: create new queue
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_captainkie_websync-api_types_response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_captainkie_websync-api_types_response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_captainkie_websync-api_types_response.Response'
+      summary: ImageSync data to magento request queue
+      tags:
+      - Queue
+  /queue/products:
+    get:
+      description: create new queue
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_captainkie_websync-api_types_response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_captainkie_websync-api_types_response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_captainkie_websync-api_types_response.Response'
+      summary: ProductsSync Add,Update,Stock,Store request queue
+      tags:
+      - Queue
+  /users:
+    get:
+      description: find all user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_captainkie_websync-api_types_response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_captainkie_websync-api_types_response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_captainkie_websync-api_types_response.Response'
+      security:
+      - BearerAuth: []
+      summary: Find All User
+      tags:
+      - Users
+    post:
+      description: create new user
+      parameters:
+      - description: CreateUser
+        in: body
+        name: Request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_captainkie_websync-api_types_request.CreateUsersRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_captainkie_websync-api_types_response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_captainkie_websync-api_types_response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_captainkie_websync-api_types_response.Response'
+      security:
+      - BearerAuth: []
+      summary: Create User
+      tags:
+      - Users
+  /users/{id}:
+    delete:
+      description: delete user
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_captainkie_websync-api_types_response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_captainkie_websync-api_types_response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_captainkie_websync-api_types_response.Response'
+      security:
+      - BearerAuth: []
+      summary: Delete User
+      tags:
+      - Users
+    get:
+      description: find by id user
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_captainkie_websync-api_types_response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_captainkie_websync-api_types_response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_captainkie_websync-api_types_response.Response'
+      security:
+      - BearerAuth: []
+      summary: Find By Id User
+      tags:
+      - Users
+    patch:
+      description: update user
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: UpdateUser
+        in: body
+        name: Request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_captainkie_websync-api_types_request.UpdateUsersRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_captainkie_websync-api_types_response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_captainkie_websync-api_types_response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_captainkie_websync-api_types_response.Response'
+      security:
+      - BearerAuth: []
+      summary: Update User
+      tags:
+      - Users
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
