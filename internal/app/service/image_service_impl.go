@@ -6,6 +6,7 @@ import (
 	model "github.com/captainkie/websync-api/internal/app/models"
 	"github.com/captainkie/websync-api/internal/app/repository"
 	"github.com/captainkie/websync-api/types/request"
+	"github.com/captainkie/websync-api/types/response"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -42,4 +43,21 @@ func (i *ImageServiceImpl) DeleteImage(targetDate time.Time) {
 
 func (i *ImageServiceImpl) DeleteImageBySku(sku string) {
 	i.ImageRepository.DeleteImageBySku(sku)
+}
+
+func (i *ImageServiceImpl) FindImageSkuByName(name string) (response.ImageResponse, error) {
+	productData, err := i.ImageRepository.FindImageSkuByName(name)
+	if err != nil {
+		return response.ImageResponse{}, err
+	}
+
+	productResponse := response.ImageResponse{
+		ID:          productData.ID,
+		Sku:         productData.Sku,
+		ProductType: productData.ProductType,
+		SyncDate:    productData.SyncDate,
+		Image:       productData.Image,
+	}
+
+	return productResponse, nil
 }

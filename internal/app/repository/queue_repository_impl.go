@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	model "github.com/captainkie/websync-api/internal/app/models"
+	"github.com/captainkie/websync-api/pkg/helpers"
 
 	"gorm.io/gorm"
 )
@@ -118,15 +119,35 @@ func (q *QueueRepositoryImpl) UpdatePostflag(postflag model.PostflagQueues) {
 
 // Create queue type image implements QueueRepository
 func (q *QueueRepositoryImpl) CreateImage(images []model.ImageQueues) ([]model.ImageQueues, error) {
-	result := q.Db.Create(images)
-	if result != nil {
-		return images, nil
-	} else {
-		return images, errors.New("could not create images queue")
+	var createdImages []model.ImageQueues
+	for _, image := range images {
+		// Check if a record with the same "image" value exists
+		var existingImage model.ImageQueues
+		result := q.Db.Where("image = ?", image.Image).First(&existingImage)
+		if result.Error != nil {
+			if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+				// Record not found, create a new one
+				result := q.Db.Create(&image)
+				if result.Error == nil {
+					createdImages = append(createdImages, image)
+				}
+			} else {
+				return createdImages, result.Error
+			}
+		}
 	}
+
+	return createdImages, nil
 }
 
 // Update queue type image implements QueueRepository
 func (q *QueueRepositoryImpl) UpdateImage(image model.ImageQueues) {
 	q.Db.Model(&image).Update("status", image.Status)
+}
+
+// Delete queue type image implements QueueRepository
+func (q *QueueRepositoryImpl) DeleteImage(id int) {
+	var images model.ImageQueues
+	result := q.Db.Where("id = ?", id).Delete(&images)
+	helpers.ErrorPanic(result.Error)
 }

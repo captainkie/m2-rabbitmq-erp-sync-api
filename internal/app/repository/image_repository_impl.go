@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"time"
 
 	model "github.com/captainkie/websync-api/internal/app/models"
@@ -33,4 +34,15 @@ func (i *ImageRepositoryImpl) DeleteImageBySku(sku string) {
 	var images model.Images
 	result := i.Db.Where("sku = ?", sku).Delete(&images)
 	helpers.ErrorPanic(result.Error)
+}
+
+func (i *ImageRepositoryImpl) FindImageSkuByName(name string) (model.Images, error) {
+	var products model.Images
+	result := i.Db.First(&products, "image = ?", name)
+
+	if result != nil {
+		return products, nil
+	} else {
+		return products, errors.New("products sku is not found")
+	}
 }

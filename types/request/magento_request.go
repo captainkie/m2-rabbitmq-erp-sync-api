@@ -43,3 +43,24 @@ type StockItem struct {
 type StockItemsRequest struct {
 	StockItem `json:"stock_item"`
 }
+
+type CreateMediaContentRequest struct {
+	Base64EncodedData string `json:"base64_encoded_data"`
+	Type              string `json:"type"`
+	Name              string `json:"name"`
+}
+
+type CreateMediaEntryRequest struct {
+	ID        int                       `json:"id"`
+	MediaType string                    `json:"media_type"`
+	Label     string                    `json:"label"`
+	Position  int                       `json:"position"`
+	Disabled  bool                      `json:"disabled"`
+	Types     []string                  `json:"types"`
+	File      string                    `json:"file"`
+	Content   CreateMediaContentRequest `json:"content"`
+}
+
+type CreateMediaRequest struct {
+	Entry CreateMediaEntryRequest `json:"entry"`
+}

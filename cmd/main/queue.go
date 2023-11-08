@@ -21,6 +21,7 @@ import (
 	"github.com/captainkie/websync-api/pkg/helpers"
 	magentoServiceAttribute "github.com/captainkie/websync-api/pkg/magento2/attributes"
 	magentoServiceInventory "github.com/captainkie/websync-api/pkg/magento2/inventory"
+	magentoServiceMedia "github.com/captainkie/websync-api/pkg/magento2/media"
 	magentoServiceProduct "github.com/captainkie/websync-api/pkg/magento2/products"
 	"github.com/captainkie/websync-api/types/payload"
 	"github.com/captainkie/websync-api/types/request"
@@ -291,8 +292,30 @@ func consume(wg *sync.WaitGroup, ch *amqp.Channel, queueName string) {
 
 			// process the task of image queue
 			if queueName == "image_queue" {
-				// do something
-				log.Printf("Received task from %s\n", queueName)
+				var body model.ImageQueues
+				errModel := json.Unmarshal(d.Body, &body)
+				if errModel != nil {
+					log.Println(errModel)
+				}
+
+				image := request.CreateImageQueueRequest{
+					TransactionID: body.TransactionID,
+					Image:         body.Image,
+					DirectoryPath: body.DirectoryPath,
+					SyncDate:      body.SyncDate,
+				}
+
+				log.Printf("Received task from %s => %s : %s\n", queueName, "[POSTFLAG]", body.TransactionID)
+				// processing task, update model status pending to processing
+				queueService.UpdateImageQueue(body.ID, "processing")
+				// process the task of image queue
+				code, status, msg, data := update_image_process(image, productService, imageService)
+				// create logs
+				add_log(code, body.TransactionID, status, data, msg, "IMAGE", loggerService)
+				// complete task, update model status processing to completed
+				queueService.UpdateImageQueue(body.ID, "completed")
+				// delete task
+				queueService.DeleteImageQueue(body.ID)
 			}
 
 			// process the task of dailysale queue
@@ -327,10 +350,12 @@ func add_log(code int, id, status, data, msg, condition string, service service.
 		service.CreateStockLog(log)
 	} else if condition == "STORE" {
 		service.CreateStoreLog(log)
-	} else if condition == "DAILYSALE" {
-		service.CreateDailysaleLog(log)
 	} else if condition == "POSTFLAG" {
 		service.CreatePostflagLog(log)
+	} else if condition == "IMAGE" {
+		service.CreateImageLog(log)
+	} else if condition == "DAILYSALE" {
+		service.CreateDailysaleLog(log)
 	}
 }
 
@@ -668,6 +693,124 @@ func update_store_to_m2(store request.UpdateStoreRequest) (int, string, string, 
 
 	code = statusCode
 	data = updateStoreData
+
+	return code, status, msg, data
+}
+
+func update_image_process(image request.CreateImageQueueRequest, productService service.ProductService, imgService service.ImageService) (int, string, string, string) {
+	// check image exist in folder
+	if _, err := os.Stat(image.DirectoryPath + "/" + image.Image); os.IsNotExist(err) {
+		return 400, "ERROR", "Image not found", "nil"
+	}
+
+	// get image sku
+	product, err := imgService.FindImageSkuByName(image.Image)
+	if err != nil {
+		// delete image in folder
+		os.Remove(image.DirectoryPath + "/" + image.Image)
+		// return error
+		return 400, "ERROR", "Product SKU not found", "nil"
+	}
+
+	// update image to simple product
+	code, status, msg, data := update_image_to_m2(image, product.Sku)
+
+	// update image to master configurable product
+	findMaster := productService.FindBySku(product.Sku)
+	if findMaster.ID != 0 {
+		code, status, msg, data = update_image_to_m2(image, findMaster.Sku)
+	}
+
+	// remove image in folder
+	if code == 200 {
+		os.Remove(image.DirectoryPath + "/" + image.Image)
+	}
+
+	return code, status, msg, data
+}
+
+func update_image_to_m2(image request.CreateImageQueueRequest, sku string) (int, string, string, string) {
+	var status, msg, data string
+	var code int
+
+	getMedia, codeMedia, errMedia := magentoServiceMedia.GetMediaBySKU("", sku)
+
+	if codeMedia == 200 {
+		var mediaPayload payload.MediaPayload
+		errParse := json.Unmarshal([]byte(getMedia), &mediaPayload)
+		if errParse != nil {
+			os.Remove(image.DirectoryPath + "/" + image.Image)
+			return 400, "ERROR", "Error parse media payload", "nil"
+		}
+
+		imageMineType, _ := helpers.GetMimeTypeByFileName(image.DirectoryPath + "/" + image.Image)
+		imageBase64, _ := helpers.ConvertImageToBase64(image.DirectoryPath + "/" + image.Image)
+
+		// check if image name exist in magento
+		var imageExist int = 0
+		var updatePayload request.CreateMediaRequest
+		for _, media := range mediaPayload {
+			if strings.Contains(media.File, image.Image) {
+				imageExist = media.ID
+
+				updatePayload = request.CreateMediaRequest{
+					Entry: request.CreateMediaEntryRequest{
+						ID:        media.ID,
+						MediaType: media.MediaType,
+						Label:     image.Image,
+						Position:  media.Position,
+						Disabled:  media.Disabled,
+						Types:     media.Types,
+						Content: request.CreateMediaContentRequest{
+							Base64EncodedData: imageBase64,
+							Type:              imageMineType,
+							Name:              image.Image,
+						},
+					},
+				}
+			}
+		}
+
+		if imageExist == 0 {
+			// add image to magento
+			requestData := request.CreateMediaRequest{
+				Entry: request.CreateMediaEntryRequest{
+					MediaType: "image",
+					Label:     image.Image,
+					Position:  len(mediaPayload) + 1,
+					Disabled:  false,
+					Content: request.CreateMediaContentRequest{
+						Base64EncodedData: imageBase64,
+						Type:              imageMineType,
+						Name:              image.Image,
+					},
+				},
+			}
+
+			addMedia, codeAddMedia, errAddMedia := magentoServiceMedia.CreateMedia("", sku, requestData)
+			if errAddMedia != nil {
+				return codeAddMedia, "ERROR", get_msg_from_json(string(errAddMedia.Error())), "nil"
+			}
+
+			code = codeAddMedia
+			status = "SUCCESS"
+			data = addMedia
+			msg = "Add image success"
+		} else {
+			// update image to magento
+			updateMedia, codeUpdteMedia, errUpdateMedia := magentoServiceMedia.UpdateMedia("", sku, imageExist, updatePayload)
+			if errUpdateMedia != nil {
+				return codeUpdteMedia, "ERROR", get_msg_from_json(string(errUpdateMedia.Error())), "nil"
+			}
+
+			code = codeUpdteMedia
+			status = "SUCCESS"
+			data = updateMedia
+			msg = "Update image success"
+		}
+	} else {
+		return codeMedia, "ERROR", get_msg_from_json(string(errMedia.Error())), "nil"
+	}
 
 	return code, status, msg, data
 }

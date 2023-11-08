@@ -101,6 +101,7 @@ func (controller *QueueController) ImagesSync(ctx *gin.Context) {
 	var msg string
 	if len(fileNames) > 0 {
 		// send to queue
+		controller.queueService.CreateImageQueue(fileNames, directoryPath, currentDate)
 
 		msg = "Successfully create image sync queue!"
 	} else {

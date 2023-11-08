@@ -18,4 +18,5 @@ type QueueRepository interface {
 	UpdatePostflag(store model.PostflagQueues)
 	CreateImage(images []model.ImageQueues) ([]model.ImageQueues, error)
 	UpdateImage(image model.ImageQueues)
+	DeleteImage(id int)
 }

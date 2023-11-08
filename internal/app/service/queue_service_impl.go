@@ -13,6 +13,7 @@ import (
 	"github.com/captainkie/websync-api/types/request"
 	"github.com/captainkie/websync-api/types/response"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 )
 
 type QueueServiceImpl struct {
@@ -392,39 +393,37 @@ func (q *QueueServiceImpl) UpdatePostflagQueue(id int, status string) {
 }
 
 // CreateImageQueue implements QueueService interface
-func (q *QueueServiceImpl) CreateImageQueue(id, status, message string) {
-	// Unmarshal the JSON data into the ResponseData struct
-	// transID, _ := strconv.Atoi(id)
-	// request := request.CreateImageRequest{
-	// 	TransactionId: transID,
-	// 	FlagStatus:    status,
-	// 	ErrMsg:        helpers.ReplaceAllQuot(message),
-	// }
-	// // Encode the struct to a JSON string
-	// jsonData, _ := json.Marshal(request)
+func (q *QueueServiceImpl) CreateImageQueue(images []string, directoryPath, syncDate string) {
+	// loop images
+	var newImage []model.ImageQueues
+	for _, value := range images {
+		requestID := uuid.New().String()
+		newImage = append(newImage, model.ImageQueues{
+			TransactionID: requestID,
+			Image:         value,
+			DirectoryPath: directoryPath,
+			SyncDate:      syncDate,
+		})
+	}
 
-	// // Convert the JSON byte slice to a string
-	// jsonString := string(jsonData)
-	// // save stocks to database
-	// var newImage []model.ImageQueues
-	// newImage = append(newImage, model.ImageQueues{
-	// 	TransactionID: transID,
-	// 	JsonData:      jsonString,
-	// })
+	imageData, _ := q.QueueRepository.CreateImage(newImage)
 
-	// imageData, _ := q.QueueRepository.CreateImage(newImage)
-
-	// // Simulate adding tasks to the queues
-	// utils.ImageTask(imageData)
+	// Simulate adding tasks to the queues
+	utils.ImageTask(imageData)
 }
 
 // UpdateImageQueue implements QueueService interface
 func (q *QueueServiceImpl) UpdateImageQueue(id int, status string) {
-	//update image to database
-	// updateImage := model.ImageQueues{
-	// 	ID:     id,
-	// 	Status: status,
-	// }
+	// update image to database
+	updateImage := model.ImageQueues{
+		ID:     id,
+		Status: status,
+	}
 
-	// q.QueueRepository.UpdateImage(updateImage)
+	q.QueueRepository.UpdateImage(updateImage)
+}
+
+// DeleteImageQueue implements QueueService interface
+func (q *QueueServiceImpl) DeleteImageQueue(id int) {
+	q.QueueRepository.DeleteImage(id)
 }

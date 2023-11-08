@@ -10,4 +10,5 @@ type ImageRepository interface {
 	CreateImage(images []model.Images)
 	DeleteImage(targetDate time.Time)
 	DeleteImageBySku(sku string)
+	FindImageSkuByName(name string) (model.Images, error)
 }

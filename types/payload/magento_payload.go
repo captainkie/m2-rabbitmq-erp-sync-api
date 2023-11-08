@@ -83,3 +83,38 @@ type ProductAttributeOptionPayload []struct {
 	Label string `json:"label"`
 	Value string `json:"value"`
 }
+
+type MediaPayload []struct {
+	ID        int         `json:"id"`
+	MediaType string      `json:"media_type"`
+	Label     interface{} `json:"label"`
+	Position  int         `json:"position"`
+	Disabled  bool        `json:"disabled"`
+	Types     []string    `json:"types"`
+	File      string      `json:"file"`
+	Content   struct {
+		Base64EncodedData string `json:"base64_encoded_data"`
+		Type              string `json:"type"`
+		Name              string `json:"name"`
+	} `json:"content"`
+	ExtensionAttributes struct {
+		VideoContent struct {
+			MediaType        string `json:"media_type"`
+			VideoProvider    string `json:"video_provider"`
+			VideoUrl         string `json:"video_url"`
+			VideoTitle       string `json:"video_title"`
+			VideoDescription string `json:"video_description"`
+			VideoMetadata    string `json:"video_metadata"`
+		} `json:"video_content"`
+		ImageContent []struct {
+			Base64EncodedData string `json:"base64_encoded_data"`
+			Type              string `json:"type"`
+			Name              string `json:"name"`
+		} `json:"image_content"`
+		VideoImage struct {
+			Base64EncodedData string `json:"base64_encoded_data"`
+			Type              string `json:"type"`
+			Name              string `json:"name"`
+		} `json:"video_image"`
+	} `json:"extension_attributes"`
+}

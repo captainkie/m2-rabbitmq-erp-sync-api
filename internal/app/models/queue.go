@@ -70,8 +70,10 @@ type PostflagQueues struct {
 
 type ImageQueues struct {
 	ID            int    `gorm:"primaryKey; autoIncrement"`
-	TransactionID int    `gorm:"not null"`
-	JsonData      string `gorm:"not null"`
+	TransactionID string `gorm:"not null"`
+	Image         string `gorm:"not null"`
+	DirectoryPath string `gorm:"not null"`
+	SyncDate      string `gorm:"not null"`
 	Status        string `gorm:"type:varchar(191);default:pending;"`
 	Created       int64  `gorm:"autoCreateTime"`
 	Updated       int64  `gorm:"autoUpdateTime"`
