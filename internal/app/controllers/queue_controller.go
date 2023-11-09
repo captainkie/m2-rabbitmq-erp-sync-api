@@ -35,6 +35,7 @@ func NewQueueController(qService service.QueueService, imgService service.ImageS
 // @Failure 400 {object} response.Response{}
 // @Failure 500 {object} response.Response{}
 // @Router /queue/products [get]
+// @Security BearerAuth
 func (controller *QueueController) ProductsSync(ctx *gin.Context) {
 	// @Security BearerAuth
 	// request to erp system connection
@@ -73,6 +74,7 @@ func (controller *QueueController) ProductsSync(ctx *gin.Context) {
 // @Failure 400 {object} response.Response{}
 // @Failure 500 {object} response.Response{}
 // @Router /queue/images [get]
+// @Security BearerAuth
 func (controller *QueueController) ImagesSync(ctx *gin.Context) {
 	// @Security BearerAuth
 	// Get the current date in the format YYYYMMDD.
@@ -138,8 +140,8 @@ func (controller *QueueController) ImagesSync(ctx *gin.Context) {
 // @Failure 400 {object} response.Response{}
 // @Failure 500 {object} response.Response{}
 // @Router /queue/daily-sales [post]
+// @Security BearerAuth
 func (controller *QueueController) DailySales(ctx *gin.Context) {
-	// @Security BearerAuth
 	createDailySaleRequest := request.CreateDailySalesRequest{}
 	err := ctx.ShouldBindJSON(&createDailySaleRequest)
 	if err != nil {
@@ -181,9 +183,4 @@ func (controller *QueueController) DailySales(ctx *gin.Context) {
 
 	ctx.Header("Content-Type", "application/json")
 	ctx.JSON(http.StatusOK, webResponse)
-}
-
-func customRequiredFloat(fl validator.FieldLevel) bool {
-	value := fl.Field().Interface().(float64)
-	return value != 0.00
 }

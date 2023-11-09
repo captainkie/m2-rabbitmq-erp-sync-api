@@ -479,6 +479,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/github_com_captainkie_websync-api_types_response.Response'
+      security:
+      - BearerAuth: []
       summary: Daily Sales request queue
       tags:
       - Queue
@@ -500,6 +502,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/github_com_captainkie_websync-api_types_response.Response'
+      security:
+      - BearerAuth: []
       summary: ImageSync data to magento request queue
       tags:
       - Queue
@@ -521,6 +525,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/github_com_captainkie_websync-api_types_response.Response'
+      security:
+      - BearerAuth: []
       summary: ProductsSync Add,Update,Stock,Store request queue
       tags:
       - Queue

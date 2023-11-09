@@ -110,6 +110,11 @@ const docTemplate = `{
         },
         "/queue/daily-sales": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "create daily sales queue",
                 "produces": [
                     "application/json"
@@ -153,6 +158,11 @@ const docTemplate = `{
         },
         "/queue/images": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "create new queue",
                 "produces": [
                     "application/json"
@@ -185,6 +195,11 @@ const docTemplate = `{
         },
         "/queue/products": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "create new queue",
                 "produces": [
                     "application/json"
