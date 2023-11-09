@@ -46,13 +46,13 @@ func MainRouter(
 
 	// queue routes
 	queueRouter := baseRouter.Group("/queue")
-	// queueRouter.GET("/products", middleware.AuthMiddleware(userRepository), queueController.ProductsSync)
-	// queueRouter.GET("/images", middleware.AuthMiddleware(userRepository), queueController.ImagesSync)
-	// queueRouter.POST("/daily-sales", middleware.AuthMiddleware(userRepository), queueController.DailySales)
+	queueRouter.GET("/products", middleware.AuthMiddleware(userRepository), queueController.ProductsSync)
+	queueRouter.GET("/images", middleware.AuthMiddleware(userRepository), queueController.ImagesSync)
+	queueRouter.POST("/daily-sales", middleware.AuthMiddleware(userRepository), queueController.DailySales)
 
-	queueRouter.GET("/products", queueController.ProductsSync)
-	queueRouter.GET("/images", queueController.ImagesSync)
-	queueRouter.POST("/daily-sales", queueController.DailySales)
+	// queueRouter.GET("/products", queueController.ProductsSync)
+	// queueRouter.GET("/images", queueController.ImagesSync)
+	// queueRouter.POST("/daily-sales", queueController.DailySales)
 
 	return router
 }
