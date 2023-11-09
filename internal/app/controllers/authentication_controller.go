@@ -5,10 +5,10 @@ import (
 	"net/http"
 
 	"github.com/captainkie/websync-api/internal/app/service"
-	"github.com/captainkie/websync-api/pkg/helpers"
 	"github.com/captainkie/websync-api/types/request"
 	"github.com/captainkie/websync-api/types/response"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 type AuthenticationController struct {
@@ -32,10 +32,35 @@ func NewAuthenticationController(service service.AuthenticationService) *Authent
 func (controller *AuthenticationController) Login(ctx *gin.Context) {
 	loginRequest := request.LoginRequest{}
 	err := ctx.ShouldBindJSON(&loginRequest)
-	helpers.ErrorPanic(err)
+	if err != nil {
+		webResponse := response.Response{
+			Code:    400,
+			Status:  "Bad Request",
+			Message: fmt.Sprintf("%s", err),
+			Data:    nil,
+		}
+
+		ctx.Header("Content-Type", "application/json")
+		ctx.JSON(http.StatusBadRequest, webResponse)
+		return
+	}
+
+	// Validate the createDailySaleRequest
+	validate := validator.New()
+	if err := validate.Struct(loginRequest); err != nil {
+		webResponse := response.Response{
+			Code:    400,
+			Status:  "Bad Request",
+			Message: fmt.Sprintf("%s", err),
+			Data:    nil,
+		}
+
+		ctx.Header("Content-Type", "application/json")
+		ctx.JSON(http.StatusBadRequest, webResponse)
+		return
+	}
 
 	token, err_token := controller.authenticationService.Login(loginRequest)
-	fmt.Println(err_token)
 	if err_token != nil {
 		webResponse := response.Response{
 			Code:    http.StatusBadRequest,
@@ -78,7 +103,33 @@ func (controller *AuthenticationController) Login(ctx *gin.Context) {
 func (controller *AuthenticationController) Register(ctx *gin.Context) {
 	createUsersRequest := request.CreateUsersRequest{}
 	err := ctx.ShouldBindJSON(&createUsersRequest)
-	helpers.ErrorPanic(err)
+	if err != nil {
+		webResponse := response.Response{
+			Code:    400,
+			Status:  "Bad Request",
+			Message: fmt.Sprintf("%s", err),
+			Data:    nil,
+		}
+
+		ctx.Header("Content-Type", "application/json")
+		ctx.JSON(http.StatusBadRequest, webResponse)
+		return
+	}
+
+	// Validate the createDailySaleRequest
+	validate := validator.New()
+	if err := validate.Struct(createUsersRequest); err != nil {
+		webResponse := response.Response{
+			Code:    400,
+			Status:  "Bad Request",
+			Message: fmt.Sprintf("%s", err),
+			Data:    nil,
+		}
+
+		ctx.Header("Content-Type", "application/json")
+		ctx.JSON(http.StatusBadRequest, webResponse)
+		return
+	}
 
 	controller.authenticationService.Register(createUsersRequest)
 

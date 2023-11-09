@@ -19,4 +19,6 @@ type QueueRepository interface {
 	CreateImage(images []model.ImageQueues) ([]model.ImageQueues, error)
 	UpdateImage(image model.ImageQueues)
 	DeleteImage(id int)
+	CreateDailySales(dailysales []model.DailysaleQueues) ([]model.DailysaleQueues, error)
+	UpdateDailySales(dailysale model.DailysaleQueues)
 }

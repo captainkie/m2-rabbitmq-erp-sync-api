@@ -98,9 +98,10 @@ func (l *LoggerServiceImpl) CreateImageLog(log request.CreateLogRequest) {
 	l.LoggerRepository.CreateImageLog(newLog)
 }
 
-func (l *LoggerServiceImpl) CreateDailysaleLog(log request.CreateLogRequest) {
+func (l *LoggerServiceImpl) CreateDailysaleLog(log request.CreateLogDailyRequest) {
 	newLog := model.DailysaleLogs{
 		TransactionID: log.TransactionID,
+		OrderID:       log.OrderID,
 		Status:        log.Status,
 		StatusCode:    log.StatusCode,
 		Message:       log.Message,

@@ -427,3 +427,32 @@ func (q *QueueServiceImpl) UpdateImageQueue(id int, status string) {
 func (q *QueueServiceImpl) DeleteImageQueue(id int) {
 	q.QueueRepository.DeleteImage(id)
 }
+
+// CreateDailySalesQueue implements QueueService interface
+func (q *QueueServiceImpl) CreateDailySalesQueue(order request.CreateDailySalesRequest) {
+	var newDailySale []model.DailysaleQueues
+	requestID := uuid.New().String()
+	jsonData, _ := json.Marshal(order)
+
+	newDailySale = append(newDailySale, model.DailysaleQueues{
+		TransactionID: requestID,
+		OrderID:       order.DocNo,
+		JsonData:      string(jsonData),
+	})
+
+	dailysaleData, _ := q.QueueRepository.CreateDailySales(newDailySale)
+
+	// Simulate adding tasks to the queues
+	utils.DailysaleTask(dailysaleData)
+}
+
+// UpdateDailySaleQueue implements QueueService interface
+func (q *QueueServiceImpl) UpdateDailySalesQueue(id int, status string) {
+	// update image to database
+	UpdateDailySale := model.DailysaleQueues{
+		ID:     id,
+		Status: status,
+	}
+
+	q.QueueRepository.UpdateDailySales(UpdateDailySale)
+}

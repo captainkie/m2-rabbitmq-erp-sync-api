@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -63,11 +64,33 @@ func (controller *UserController) Create(ctx *gin.Context) {
 func (controller *UserController) Update(ctx *gin.Context) {
 	userId := ctx.Param("id")
 	id, errId := strconv.Atoi(userId)
-	helpers.ErrorPanic(errId)
+	if errId != nil {
+		webResponse := response.Response{
+			Code:    400,
+			Status:  "Bad Request",
+			Message: fmt.Sprintf("%s", errId),
+			Data:    nil,
+		}
+
+		ctx.Header("Content-Type", "application/json")
+		ctx.JSON(http.StatusBadRequest, webResponse)
+		return
+	}
 
 	updateUserRequest := request.UpdateUsersRequest{}
 	err := ctx.ShouldBindJSON(&updateUserRequest)
-	helpers.ErrorPanic(err)
+	if err != nil {
+		webResponse := response.Response{
+			Code:    400,
+			Status:  "Bad Request",
+			Message: fmt.Sprintf("%s", err),
+			Data:    nil,
+		}
+
+		ctx.Header("Content-Type", "application/json")
+		ctx.JSON(http.StatusBadRequest, webResponse)
+		return
+	}
 
 	controller.userService.Update(id, updateUserRequest)
 
@@ -96,7 +119,19 @@ func (controller *UserController) Update(ctx *gin.Context) {
 func (controller *UserController) Delete(ctx *gin.Context) {
 	userId := ctx.Param("id")
 	id, err := strconv.Atoi(userId)
-	helpers.ErrorPanic(err)
+	if err != nil {
+		webResponse := response.Response{
+			Code:    400,
+			Status:  "Bad Request",
+			Message: fmt.Sprintf("%s", err),
+			Data:    nil,
+		}
+
+		ctx.Header("Content-Type", "application/json")
+		ctx.JSON(http.StatusBadRequest, webResponse)
+		return
+	}
+
 	controller.userService.Delete(id)
 
 	webResponse := response.Response{
@@ -147,7 +182,19 @@ func (controller *UserController) FindAll(ctx *gin.Context) {
 func (controller *UserController) FindById(ctx *gin.Context) {
 	userId := ctx.Param("id")
 	id, err := strconv.Atoi(userId)
-	helpers.ErrorPanic(err)
+	if err != nil {
+		webResponse := response.Response{
+			Code:    400,
+			Status:  "Bad Request",
+			Message: fmt.Sprintf("%s", err),
+			Data:    nil,
+		}
+
+		ctx.Header("Content-Type", "application/json")
+		ctx.JSON(http.StatusBadRequest, webResponse)
+		return
+	}
+
 	user := controller.userService.FindById(id)
 
 	webResponse := response.Response{

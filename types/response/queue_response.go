@@ -11,3 +11,9 @@ type CreateConnectionResponse struct {
 	Created           int64  `json:"Created"`
 	Updated           int64  `json:"Updated"`
 }
+
+type CreateDailySalesResponse struct {
+	DocNo   string `json:"DOC_NO"`
+	Status  string `json:"STATUS"`
+	Message string `json:"MESSAGE"`
+}

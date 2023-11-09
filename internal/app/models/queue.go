@@ -51,12 +51,13 @@ type StoreQueues struct {
 }
 
 type DailysaleQueues struct {
-	ID       int    `gorm:"primaryKey; autoIncrement"`
-	OrderID  string `gorm:"type:varchar(191);not null"`
-	JsonData string `gorm:"not null"`
-	Status   string `gorm:"type:varchar(191);default:pending;"`
-	Created  int64  `gorm:"autoCreateTime"`
-	Updated  int64  `gorm:"autoUpdateTime"`
+	ID            int    `gorm:"primaryKey; autoIncrement"`
+	TransactionID string `gorm:"not null"`
+	OrderID       string `gorm:"type:varchar(191);not null"`
+	JsonData      string `gorm:"not null"`
+	Status        string `gorm:"type:varchar(191);default:pending;"`
+	Created       int64  `gorm:"autoCreateTime"`
+	Updated       int64  `gorm:"autoUpdateTime"`
 }
 
 type PostflagQueues struct {

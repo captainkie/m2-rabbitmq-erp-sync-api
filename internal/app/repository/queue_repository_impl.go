@@ -151,3 +151,18 @@ func (q *QueueRepositoryImpl) DeleteImage(id int) {
 	result := q.Db.Where("id = ?", id).Delete(&images)
 	helpers.ErrorPanic(result.Error)
 }
+
+// Create queue type dailysales implements QueueRepository
+func (q *QueueRepositoryImpl) CreateDailySales(dailysales []model.DailysaleQueues) ([]model.DailysaleQueues, error) {
+	result := q.Db.Create(dailysales)
+	if result != nil {
+		return dailysales, nil
+	} else {
+		return dailysales, errors.New("could not create dailysales queue")
+	}
+}
+
+// UpdateStock implements QueueRepository
+func (q *QueueRepositoryImpl) UpdateDailySales(dailysale model.DailysaleQueues) {
+	q.Db.Model(&dailysale).Update("status", dailysale.Status)
+}

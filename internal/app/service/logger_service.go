@@ -9,5 +9,5 @@ type LoggerService interface {
 	CreateStoreLog(log request.CreateLogRequest)
 	CreatePostflagLog(log request.CreateLogRequest)
 	CreateImageLog(log request.CreateLogRequest)
-	CreateDailysaleLog(log request.CreateLogRequest)
+	CreateDailysaleLog(log request.CreateLogDailyRequest)
 }

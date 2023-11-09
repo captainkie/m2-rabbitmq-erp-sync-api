@@ -110,11 +110,6 @@ const docTemplate = `{
         },
         "/queue/daily-sales": {
             "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
                 "description": "create daily sales queue",
                 "produces": [
                     "application/json"
@@ -451,13 +446,268 @@ const docTemplate = `{
         "github_com_captainkie_websync-api_types_request.CreateDailySalesRequest": {
             "type": "object",
             "required": [
-                "OrderID"
+                "ADDRESS1",
+                "ADDRESS2",
+                "BRANCH",
+                "CUST_CODE",
+                "CUST_NAME",
+                "DOC_CODE",
+                "DOC_DATE",
+                "DOC_NO",
+                "DOC_STATUS",
+                "Detail",
+                "NAME_TITLE",
+                "PAY_CODE",
+                "PAY_DESC",
+                "POSTCODE",
+                "POS_ENTITY",
+                "PROVINCE",
+                "REF_NO",
+                "REMARK1",
+                "REMARK2",
+                "SYS_DATE",
+                "TAX_ID",
+                "TOT_AMT",
+                "TOT_DISCAMT",
+                "TOT_NETAMT",
+                "TOT_SUBAMT",
+                "TOT_VATAMT",
+                "USER_CODE",
+                "VAT_RATE"
             ],
             "properties": {
-                "OrderID": {
+                "ADDRESS1": {
+                    "description": "ADDRESS1 is required \u0026\u0026 must be between 1 and 50 characters. (ที่อยู่)\nIt must be ` + "`" + `${street_adress1}` + "`" + `",
                     "type": "string",
-                    "maxLength": 100,
+                    "maxLength": 50,
                     "minLength": 1
+                },
+                "ADDRESS2": {
+                    "description": "ADDRESS2 is required \u0026\u0026 must be between 1 and 50 characters. (อำเภอ)\nIt must be ` + "`" + `${city}` + "`" + `",
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 1
+                },
+                "BRANCH": {
+                    "description": "BRANCH is required \u0026\u0026 must be between 0 and 50 characters. ( สาขาของบริษัท - สำหรับใบกำกับภาษีแบบเต็ม)\nIt must be ` + "`" + `${company}` + "`" + `\nIf no data Fix value space = \" \"",
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 0
+                },
+                "CUST_CODE": {
+                    "description": "CUST_CODE is required \u0026\u0026 fix value = \"Z00000\" (รหัสลูกค้า)",
+                    "type": "string"
+                },
+                "CUST_NAME": {
+                    "description": "CUST_NAME is required \u0026\u0026 must be between 1 and 50 characters. (ชื่อลูกค้า)\nIt must be ` + "`" + `${firstname} ${lastname}` + "`" + `",
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 1
+                },
+                "DISC1": {
+                    "description": "DISC1 is required \u0026\u0026 must be decimal 2 digit (อัตตาส่วนลด)\nIt must be ` + "`" + `(${discount_total} / ${base_total}) * 100` + "`" + `\nExample: 100.00",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "DOC_CODE": {
+                    "description": "DOC_CODE is required \u0026\u0026 fixed value = \"DS\" (ประเภทเอกสาร)",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "DOC_DATE": {
+                    "description": "DOC_DATE is required \u0026\u0026 format = \"DD/MM/YYYY\" (วันที่เอกสาร)",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "DOC_NO": {
+                    "description": "DOC_NO is the unique identifier for the order. (หมายเลขคำสั่งซื้อ)\nIt required \u0026\u0026 must be between 1 and 50 characters.",
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 1
+                },
+                "DOC_STATUS": {
+                    "description": "DOC_STATUS is required \u0026\u0026 fix value = \"NP\" (สถานะเอกสาร)",
+                    "type": "string"
+                },
+                "Detail": {
+                    "description": "Detail is array od products (รายละเอียดสินค้า)\nIf has shipping price, add shipping product to array (หากมาค่าขนส่งให้เพิ่มสินค้าค่าขนส่งเข้าไปใน array)\nExample data for shipping product (ตัวอย่างข้อมูลสินค้าค่าขนส่ง)\n` + "`" + `{` + "`" + `\n` + "`" + `    \"Item\": 1,` + "`" + `\n` + "`" + `    \"BAR_CODE\": \"8852012882769\",` + "`" + `\n` + "`" + `    \"PROD_CODE\": \"ZZSV0   00TRANSPORT\",` + "`" + `\n` + "`" + `    \"PROD_DESC\": \"ค่าขนส่ง (Transportation Charge)\",` + "`" + `\n` + "`" + `    \"UOM_CODE\": \"PCS\",` + "`" + `\n` + "`" + `    \"UNIT_PRICE\": 500.00,` + "`" + `\n` + "`" + `    \"DISC_RATE\": 0.00,` + "`" + `\n` + "`" + `    \"DISC_AMT\": 0.00,` + "`" + `\n` + "`" + `    \"VAT_AMT\": 0.00,` + "`" + `\n` + "`" + `    \"NET_AMT\": 500.00,` + "`" + `\n` + "`" + `    \"AMT\": 500.00,` + "`" + `\n` + "`" + `    \"QTY\": 1.00,` + "`" + `\n` + "`" + `    \"SALE_PD\": \"Y\",` + "`" + `\n` + "`" + `    \"PROD_STATUS\": \"N\"` + "`" + `\n` + "`" + `}` + "`" + `",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "AMT",
+                            "BAR_CODE",
+                            "DISC_AMT",
+                            "DISC_RATE",
+                            "ITEM",
+                            "NET_AMT",
+                            "PROD_CODE",
+                            "PROD_DESC",
+                            "PROD_STATUS",
+                            "QTY",
+                            "SALE_PD",
+                            "UNIT_PRICE",
+                            "UOM_CODE",
+                            "VAT_AMT"
+                        ],
+                        "properties": {
+                            "AMT": {
+                                "description": "AMT is required \u0026\u0026 must be decimal 2 digit (จำนวนเงินรวมภาษี)\nIt must be ` + "`" + `${item-\u003egetBaseRowTotal()}` + "`" + `\nExample: 100.00",
+                                "type": "number"
+                            },
+                            "BAR_CODE": {
+                                "description": "BAR_CODE is required. (บาร์โค้ดสินค้า)\nIt must be ` + "`" + `${service_bar_code}` + "`" + `",
+                                "type": "string"
+                            },
+                            "DISC_AMT": {
+                                "description": "DISC_AMT is required \u0026\u0026 must be decimal 2 digit (จำนวนเงินส่วนลด * item qty)\nIt must be ` + "`" + `${discount} * ${item-\u003egetQtyOrdered()}` + "`" + `\nExample: 100.00",
+                                "type": "number"
+                            },
+                            "DISC_RATE": {
+                                "description": "DISC_RATE is required \u0026\u0026 must be decimal 2 digit (อัตราส่วนลด)\nIt must be ` + "`" + `(${discount} / ${product-\u003egetPrice()}) * 100` + "`" + `\nExample: 100.00",
+                                "type": "number"
+                            },
+                            "ITEM": {
+                                "description": "ITEM is required. (ลำดับที่)\nIt must be ` + "`" + `${index}` + "`" + `\nExample: 1",
+                                "type": "integer"
+                            },
+                            "NET_AMT": {
+                                "description": "NET_AMT is required \u0026\u0026 must be decimal 2 digit (จำนวนเงินไม่รวมภาษี)\nIt must be ` + "`" + `${item-\u003egetBaseRowTotal()}` + "`" + `\nExample: 100.00",
+                                "type": "number"
+                            },
+                            "PROD_CODE": {
+                                "description": "PROD_CODE is required. (รหัสสินค้า)\nIt must be ` + "`" + `${sku}` + "`" + `",
+                                "type": "string"
+                            },
+                            "PROD_DESC": {
+                                "description": "PROD_DESC is required \u0026\u0026 must be between 1 and 50 characters. (ชื่อสินค้า)\nIt must be ` + "`" + `${name}` + "`" + `",
+                                "type": "string",
+                                "maxLength": 50,
+                                "minLength": 1
+                            },
+                            "PROD_STATUS": {
+                                "description": "PROD_STATUS is required \u0026\u0026  fix value = \"Y\" (สถานะสินค้า)",
+                                "type": "string"
+                            },
+                            "QTY": {
+                                "description": "QTY is required \u0026\u0026 must be decimal 2 digit (จำนวน)\nIt must be ` + "`" + `${item-\u003egetQtyOrdered()}` + "`" + `\nExample: 100.00",
+                                "type": "number"
+                            },
+                            "SALE_PD": {
+                                "description": "SALE_PD is required \u0026\u0026  fix value = \"Y\" (รหัสพนักงานขาย)",
+                                "type": "string",
+                                "maxLength": 50,
+                                "minLength": 0
+                            },
+                            "UNIT_PRICE": {
+                                "description": "UNIT_PRICE is required \u0026\u0026 must be decimal 2 digit (ราคาต่อหน่วย)\nIt must be ` + "`" + `${product-\u003egetPrice()}` + "`" + `\nExample: 100.00",
+                                "type": "number"
+                            },
+                            "UOM_CODE": {
+                                "description": "UOM_CODE is required. (หน่วยนับ)\nIt must be ` + "`" + `${service_uom_code}` + "`" + `",
+                                "type": "string"
+                            },
+                            "VAT_AMT": {
+                                "description": "VAT_AMT is required \u0026\u0026 must be decimal 2 digit (ภาษี)\nIt Fix value = 0.00\nExample: 0.00",
+                                "type": "number"
+                            }
+                        }
+                    }
+                },
+                "NAME_TITLE": {
+                    "description": "NAME_TITLE is required \u0026\u0026 must be between 0 and 50 characters. (คำนำหน้าชื่อ)\nIt must be ` + "`" + `${title}` + "`" + `\nIf no data Fix value space = \" \"",
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 0
+                },
+                "PAY_CODE": {
+                    "description": "PAY_CODE is required. (รหัสประเภทการจ่ายเงิน)\nFor Credit Card, Fix value = \"VISA1\"\nFor QR Code,  Fix value = \"QR\"",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "PAY_DESC": {
+                    "description": "PAY_DESC is required. (รายละเอียดประเภทการจ่ายเงิน)\nFor Credit Card, Fix value = \"VIS1 - VISA ( EDC )\"\nFor QR Code,  Fix value = \"QR Code\"",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "POSTCODE": {
+                    "description": "POSTCODE is required \u0026\u0026 must be between 1 and 50 characters. (รหัสไปรษณีย์)\nIt must be ` + "`" + `${zipcode}` + "`" + ` or ` + "`" + `${postcode}` + "`" + `",
+                    "type": "string",
+                    "maxLength": 5,
+                    "minLength": 1
+                },
+                "POS_ENTITY": {
+                    "description": "POS_ENTITY is required \u0026\u0026 fixed value = \"J0063\" (รหัสกลุ่มข้อมูล)",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "PROVINCE": {
+                    "description": "PROVINCE is required \u0026\u0026 must be between 1 and 50 characters. (จังหวัด)\nIt must be ` + "`" + `${state}` + "`" + ` or ` + "`" + `${province}` + "`" + `",
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 1
+                },
+                "REF_NO": {
+                    "description": "REF_NO is required \u0026\u0026 fix value space = \" \" (เลขที่อ้างอิง)",
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 0
+                },
+                "REMARK1": {
+                    "description": "REMARK1 is required \u0026\u0026 must be between 1 and 50 characters. (หมายเลขโทรศัพท์)",
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 1
+                },
+                "REMARK2": {
+                    "description": "REMARK2 is required \u0026\u0026 must be between 0 and 50 characters. (อื่นๆ)\nIt fix value space = \" \"",
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 0
+                },
+                "SYS_DATE": {
+                    "description": "SYS_DATE is required \u0026\u0026 format = \"DD/MM/YYYY\" (วันที่บันทึก)",
+                    "type": "string"
+                },
+                "TAX_ID": {
+                    "description": "TAX_ID is required \u0026\u0026 must be between 0 and 50 characters. (เลขที่ผู้เสียภาษี - สำหรับใบกำกับภาษีแบบเต็ม)\nIt must be ` + "`" + `${tax_id}` + "`" + `\nIf no data Fix value space = \" \"",
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 0
+                },
+                "TOT_AMT": {
+                    "description": "TOT_AMT is required \u0026\u0026 must be decimal 2 digit (จำนวนเงินรวมภาษี)\nExample: 100.00",
+                    "type": "number",
+                    "minimum": 1
+                },
+                "TOT_DISCAMT": {
+                    "description": "TOT_DISCAMT is required \u0026\u0026 must be decimal 2 digit (จำนวนเงินส่วนลด)\nExample: 100.00",
+                    "type": "number",
+                    "minimum": 1
+                },
+                "TOT_NETAMT": {
+                    "description": "TOT_NETAMT is required \u0026\u0026 must be decimal 2 digit (จำนวนเงินไม่รวมภาษี)\nExample: 100.00",
+                    "type": "number",
+                    "minimum": 1
+                },
+                "TOT_SUBAMT": {
+                    "description": "TOT_SUBAMT is required \u0026\u0026 must be decimal 2 digit (จำนวนเงินก่อนหักส่วนลด)\nExample: 100.00",
+                    "type": "number",
+                    "minimum": 1
+                },
+                "TOT_VATAMT": {
+                    "description": "TOT_VATAMT is required \u0026\u0026 must be decimal 2 digit (จำนวนเงินภาษี)\nIt fix value = 0.00\nExample: 100.00",
+                    "type": "number",
+                    "minimum": 1
+                },
+                "USER_CODE": {
+                    "description": "USER_CODE is required \u0026\u0026 must be between 1 and 50 characters. (ผู้บันทึก)\nIt fix value = \"ECOMERCE\"",
+                    "type": "string"
+                },
+                "VAT_RATE": {
+                    "description": "VAT_RATE is required \u0026\u0026 must be decimal 2 digit (อัตราภาษีมูลค่าเพิ่ม)\nIt fix value = 7.00\nExample: 7.00",
+                    "type": "number",
+                    "minimum": 1
                 }
             }
         },

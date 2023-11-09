@@ -1,6 +1,9 @@
 package service
 
-import "github.com/captainkie/websync-api/types/response"
+import (
+	"github.com/captainkie/websync-api/types/request"
+	"github.com/captainkie/websync-api/types/response"
+)
 
 type QueueService interface {
 	Connection(connection []byte) response.CreateConnectionResponse
@@ -17,4 +20,6 @@ type QueueService interface {
 	CreateImageQueue(images []string, syncDate, directoryPath string)
 	UpdateImageQueue(id int, status string)
 	DeleteImageQueue(id int)
+	CreateDailySalesQueue(order request.CreateDailySalesRequest)
+	UpdateDailySalesQueue(id int, status string)
 }

@@ -306,6 +306,44 @@ func ImageTask(tasks []model.ImageQueues) {
 	}
 }
 
-func DailysaleTask(tasks string) {
-	// do
+func DailysaleTask(tasks []model.DailysaleQueues) {
+	// connect RabbitMQ
+	rabbitMQURL := os.Getenv("RABBITMQ_URL")
+	conn, err := amqp.Dial(rabbitMQURL)
+	if err != nil {
+		log.Fatalf("Failed to connect to RabbitMQ: %v", err)
+	}
+	defer conn.Close()
+
+	// Create a RabbitMQ channel
+	ch, err := conn.Channel()
+	if err != nil {
+		log.Fatalf("Failed to open a channel: %v", err)
+	}
+	defer ch.Close()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// Declare a queue for this channel
+	for _, task := range tasks {
+		body, err := json.Marshal(task)
+		helpers.ErrorPanic(err)
+
+		err = ch.PublishWithContext(ctx,
+			"",                // Exchange
+			"dailysale_queue", // Routing key (queue name)
+			false,             // Mandatory
+			false,             // Immediate
+			amqp.Publishing{
+				ContentType: "text/plain",
+				Body:        []byte(body),
+			})
+
+		if err != nil {
+			log.Printf("Failed to publish dailysale_queue => [DAILYSALE] : %v\n : %v", task.TransactionID, err)
+		} else {
+			log.Printf("Publish dailysale_queue => [DAILYSALE] : %v\n", task.TransactionID)
+		}
+	}
 }
