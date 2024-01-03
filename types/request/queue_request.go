@@ -127,20 +127,20 @@ type CreateDailySalesRequest struct {
 	Postcode string `validate:"required,min=1,max=5" json:"POSTCODE"`
 	// TOT_AMT is required && must be decimal 2 digit (จำนวนเงินรวมภาษี)
 	// Example: 100.00
-	TotAmt float64 `validate:"required,min=1" json:"TOT_AMT"`
+	TotAmt float64 `validate:"min=0.00" json:"TOT_AMT"`
 	// TOT_VATAMT is required && must be decimal 2 digit (จำนวนเงินภาษี)
 	// It fix value = 0.00
 	// Example: 100.00
-	TotVatamt float64 `validate:"required,min=1" json:"TOT_VATAMT"`
+	TotVatamt float64 `validate:"min=0.00" json:"TOT_VATAMT"`
 	// TOT_NETAMT is required && must be decimal 2 digit (จำนวนเงินไม่รวมภาษี)
 	// Example: 100.00
-	TotNetamt float64 `validate:"required,min=1" json:"TOT_NETAMT"`
+	TotNetamt float64 `validate:"min=0.00" json:"TOT_NETAMT"`
 	// TOT_DISCAMT is required && must be decimal 2 digit (จำนวนเงินส่วนลด)
 	// Example: 100.00
-	TotDiscamt float64 `validate:"required,min=1" json:"TOT_DISCAMT"`
+	TotDiscamt float64 `validate:"min=0.00" json:"TOT_DISCAMT"`
 	// TOT_SUBAMT is required && must be decimal 2 digit (จำนวนเงินก่อนหักส่วนลด)
 	// Example: 100.00
-	TotSubamt float64 `validate:"required,min=1" json:"TOT_SUBAMT"`
+	TotSubamt float64 `validate:"min=0.00" json:"TOT_SUBAMT"`
 	// VAT_RATE is required && must be decimal 2 digit (อัตราภาษีมูลค่าเพิ่ม)
 	// It fix value = 7.00
 	// Example: 7.00

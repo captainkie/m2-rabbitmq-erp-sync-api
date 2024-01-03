@@ -3,9 +3,11 @@ package magentoServiceMedia
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"os"
 
 	"github.com/captainkie/websync-api/pkg/helpers"
@@ -13,7 +15,7 @@ import (
 	"github.com/captainkie/websync-api/types/request"
 )
 
-func UpdateMedia(tokens, sku string, id int, media request.CreateMediaRequest) (string, int, error) {
+func UpdateMedia(tokens, sku string, id int, media request.UpdateMediaRequest) (string, int, error) {
 	var cleanedToken string
 	if tokens == "" {
 		token, err := magentoServiceAuth.GetAdminToken()
@@ -26,7 +28,8 @@ func UpdateMedia(tokens, sku string, id int, media request.CreateMediaRequest) (
 		cleanedToken = helpers.ReplaceAllQuot(tokens)
 	}
 
-	serviceURL := os.Getenv("MAGE_HOST") + "/rest/all/V1/products/" + sku + "/media/" + fmt.Sprintf("%d", id)
+	escapedSKU := url.QueryEscape(sku)
+	serviceURL := os.Getenv("MAGE_HOST") + "/rest/all/V1/products/" + escapedSKU + "/media/" + fmt.Sprintf("%d", id)
 
 	fmt.Println(serviceURL)
 
@@ -54,6 +57,15 @@ func UpdateMedia(tokens, sku string, id int, media request.CreateMediaRequest) (
 	responseBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return "ERROR, Can't not read response body from M2 store service", 400, err
+	}
+
+	if resp.StatusCode != 200 {
+		var result map[string]interface{}
+		json.Unmarshal([]byte(responseBody), &result)
+		msg := fmt.Sprintf("%s", result["message"])
+		errSimple := errors.New(msg)
+
+		return "nil", resp.StatusCode, errSimple
 	}
 
 	return string(responseBody), resp.StatusCode, nil

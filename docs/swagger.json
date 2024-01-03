@@ -475,11 +475,6 @@
                 "REMARK2",
                 "SYS_DATE",
                 "TAX_ID",
-                "TOT_AMT",
-                "TOT_DISCAMT",
-                "TOT_NETAMT",
-                "TOT_SUBAMT",
-                "TOT_VATAMT",
                 "USER_CODE",
                 "VAT_RATE"
             ],
@@ -686,27 +681,27 @@
                 "TOT_AMT": {
                     "description": "TOT_AMT is required \u0026\u0026 must be decimal 2 digit (จำนวนเงินรวมภาษี)\nExample: 100.00",
                     "type": "number",
-                    "minimum": 1
+                    "minimum": 0
                 },
                 "TOT_DISCAMT": {
                     "description": "TOT_DISCAMT is required \u0026\u0026 must be decimal 2 digit (จำนวนเงินส่วนลด)\nExample: 100.00",
                     "type": "number",
-                    "minimum": 1
+                    "minimum": 0
                 },
                 "TOT_NETAMT": {
                     "description": "TOT_NETAMT is required \u0026\u0026 must be decimal 2 digit (จำนวนเงินไม่รวมภาษี)\nExample: 100.00",
                     "type": "number",
-                    "minimum": 1
+                    "minimum": 0
                 },
                 "TOT_SUBAMT": {
                     "description": "TOT_SUBAMT is required \u0026\u0026 must be decimal 2 digit (จำนวนเงินก่อนหักส่วนลด)\nExample: 100.00",
                     "type": "number",
-                    "minimum": 1
+                    "minimum": 0
                 },
                 "TOT_VATAMT": {
                     "description": "TOT_VATAMT is required \u0026\u0026 must be decimal 2 digit (จำนวนเงินภาษี)\nIt fix value = 0.00\nExample: 100.00",
                     "type": "number",
-                    "minimum": 1
+                    "minimum": 0
                 },
                 "USER_CODE": {
                     "description": "USER_CODE is required \u0026\u0026 must be between 1 and 50 characters. (ผู้บันทึก)\nIt fix value = \"ECOMERCE\"",

@@ -3,6 +3,7 @@ package repository
 import model "github.com/captainkie/websync-api/internal/app/models"
 
 type LoggerRepository interface {
+	CreateConnectionLog(log model.ConnectionLogs)
 	CreateAddLog(log model.AddLogs)
 	CreateUpdateLog(log model.UpdateLogs)
 	CreateStockLog(log model.StockLogs)

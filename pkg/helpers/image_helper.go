@@ -37,5 +37,6 @@ func ConvertImageToBase64(imagePath string) (string, error) {
 
 	// Encode the image data to base64
 	base64String := base64.StdEncoding.EncodeToString(imageData)
+
 	return base64String, nil
 }

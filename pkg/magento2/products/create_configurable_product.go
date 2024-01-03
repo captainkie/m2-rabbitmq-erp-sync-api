@@ -186,12 +186,14 @@ func prepareConfigurableAttribute(product request.AddUpdateProductRequest, sku, 
 		"product_group":  product.PDGRP_DESC,
 		"product_typeof": product.PDTYPE_DESC,
 		"product_design": product.PDSIZE_TH,
+		"product_model":  product.PDMODEL_DESC,
 	}
 
 	var attributesTH = map[string]string{
 		"product_group":  product.PDGRP_TH,
 		"product_typeof": product.PDTYPE_TH,
 		"product_design": product.PDDSGN_TH,
+		"product_model":  product.PDMODEL_DESC,
 	}
 
 	// loop attributes
@@ -240,10 +242,6 @@ func prepareConfigurableAttribute(product request.AddUpdateProductRequest, sku, 
 	slugify := slug.Make(product.PDNAME_EN + "-" + sku)
 
 	productAttr += `
-      {
-        "attribute_code": "product_model",
-        "value": "` + product.PDMODEL_DESC + `"
-      },
       {
         "attribute_code": "product_weight",
         "value": "` + product.WEIGHT + `"

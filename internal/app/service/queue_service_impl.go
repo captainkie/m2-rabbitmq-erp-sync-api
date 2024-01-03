@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"strconv"
 	"time"
@@ -393,23 +394,45 @@ func (q *QueueServiceImpl) UpdatePostflagQueue(id int, status string) {
 }
 
 // CreateImageQueue implements QueueService interface
-func (q *QueueServiceImpl) CreateImageQueue(images []string, directoryPath, syncDate string) {
-	// loop images
-	var newImage []model.ImageQueues
-	for _, value := range images {
-		requestID := uuid.New().String()
-		newImage = append(newImage, model.ImageQueues{
-			TransactionID: requestID,
-			Image:         value,
-			DirectoryPath: directoryPath,
-			SyncDate:      syncDate,
-		})
+func (q *QueueServiceImpl) CreateImageQueue() {
+	// Get the current date in the format YYYYMMDD.
+	currentDate := time.Now().Format("20060102")
+	// Define the base directory path.
+	baseDirectory := os.Getenv("UPLOAD_PATH")
+	// Create full directory path
+	directoryPath := fmt.Sprintf("%s/%s", baseDirectory, currentDate)
+	// Open the directory.
+	dir, _ := os.ReadDir(directoryPath)
+	// Check file exist in folder
+	var fileNames []string
+	for _, entry := range dir {
+		if entry.IsDir() {
+			// Handle directories, Don't do anything
+		} else {
+			// Handle files.
+			fileNames = append(fileNames, entry.Name())
+		}
 	}
 
-	imageData, _ := q.QueueRepository.CreateImage(newImage)
+	// loop images
+	var newImage []model.ImageQueues
+	if len(fileNames) > 0 {
+		for _, value := range fileNames {
+			requestID := uuid.New().String()
+			newImage = append(newImage, model.ImageQueues{
+				TransactionID: requestID,
+				Image:         value,
+				DirectoryPath: directoryPath,
+				SyncDate:      currentDate,
+			})
+		}
+	}
 
-	// Simulate adding tasks to the queues
-	utils.ImageTask(imageData)
+	if len(newImage) > 0 {
+		imageData, _ := q.QueueRepository.CreateImage(newImage)
+		// Simulate adding tasks to the queues
+		utils.ImageTask(imageData)
+	}
 }
 
 // UpdateImageQueue implements QueueService interface

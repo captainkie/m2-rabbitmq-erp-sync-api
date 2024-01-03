@@ -17,7 +17,7 @@ type QueueService interface {
 	UpdateStoreQueue(id int, status string, stores []byte)
 	CreatePostflagQueue(id, status, message string)
 	UpdatePostflagQueue(id int, status string)
-	CreateImageQueue(images []string, syncDate, directoryPath string)
+	CreateImageQueue()
 	UpdateImageQueue(id int, status string)
 	DeleteImageQueue(id int)
 	CreateDailySalesQueue(order request.CreateDailySalesRequest)

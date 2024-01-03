@@ -20,6 +20,8 @@ func AuthMiddleware(userRepository repository.UsersRepository) gin.HandlerFunc {
 		authorizationHeader := ctx.Request.Header.Get("Authorization")
 		fields := strings.Fields(authorizationHeader)
 
+		fmt.Println("fields", fields)
+
 		if len(fields) != 0 && fields[0] == "Bearer" {
 			token = fields[1]
 		}

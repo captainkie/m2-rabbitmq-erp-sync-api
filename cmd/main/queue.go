@@ -13,6 +13,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	_ "time/tzdata"
 
 	"github.com/captainkie/websync-api/config"
 	model "github.com/captainkie/websync-api/internal/app/models"
@@ -26,6 +27,7 @@ import (
 	"github.com/captainkie/websync-api/types/payload"
 	"github.com/captainkie/websync-api/types/request"
 	"github.com/go-playground/validator/v10"
+	"github.com/gosimple/slug"
 	"github.com/joho/godotenv"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -41,6 +43,8 @@ func producer() {
 	os.Clearenv()
 	err := godotenv.Load()
 	helpers.ErrorPanic(err)
+
+	os.Setenv("TZ", "Asia/Bangkok")
 
 	// connect RabbitMQ
 	rabbitMQURL := os.Getenv("RABBITMQ_URL")
@@ -133,8 +137,10 @@ func consume(wg *sync.WaitGroup, ch *amqp.Channel, queueName string) {
 				// processing task, update model status pending to processing
 				queueService.UpdateConnectionQueue(body.ID, "processing")
 				// fetch data from erp
-				fetch := get_data_from_erp(queueService)
-				fmt.Println("Fetch Data from ERP Status: ", fetch)
+				code, status, msg, data := get_data_from_erp(queueService)
+				log.Printf("SyncStatus :: CONNECTION => [TranID=%s],[CODE=%d],[MSG=%s]\n", body.TransactionID, code, msg)
+				// create logs
+				add_log(code, body.TransactionID, status, data, msg, "CONNECTION", "", "", loggerService)
 				// complete task, update model status processing to completed
 				queueService.UpdateConnectionQueue(body.ID, "completed")
 			}
@@ -163,7 +169,7 @@ func consume(wg *sync.WaitGroup, ch *amqp.Channel, queueName string) {
 					code, status, msg, data := add_product_to_m2(product, productService, imageService)
 					log.Printf("SyncStatus :: ADD => [TranID=%s],[CODE=%d],[MSG=%s]\n", product.TRANS_ID, code, msg)
 					// create logs
-					add_log(code, product.TRANS_ID, status, data, msg, "ADD", "", loggerService)
+					add_log(code, product.TRANS_ID, status, data, msg, "ADD", "", "", loggerService)
 					// send to postflag
 					send_post_flag_queue(code, product.TRANS_ID, msg, queueService)
 					// complete task, update model status processing to completed
@@ -192,7 +198,7 @@ func consume(wg *sync.WaitGroup, ch *amqp.Channel, queueName string) {
 					code, status, msg, data := update_product_to_m2(product, productService, imageService)
 					log.Printf("SyncStatus :: UPDATE => [TranID=%s],[CODE=%d],[MSG=%s]\n", product.TRANS_ID, code, msg)
 					// create logs
-					add_log(code, product.TRANS_ID, status, data, msg, "UPDATE", "", loggerService)
+					add_log(code, product.TRANS_ID, status, data, msg, "UPDATE", "", "", loggerService)
 					// send to postflag
 					send_post_flag_queue(code, product.TRANS_ID, msg, queueService)
 					// complete task, update model status processing to completed
@@ -223,7 +229,7 @@ func consume(wg *sync.WaitGroup, ch *amqp.Channel, queueName string) {
 					code, status, msg, data := update_stock_to_m2(stocks)
 					log.Printf("SyncStatus :: STOCK => [TranID=%s],[CODE=%d],[MSG=%s]\n", transctionID, code, msg)
 					// create logs
-					add_log(code, transctionID, status, data, msg, "STOCK", "", loggerService)
+					add_log(code, transctionID, status, data, msg, "STOCK", "", "", loggerService)
 					// send to postflag
 					send_post_flag_queue(code, transctionID, msg, queueService)
 					// complete task, update model status processing to completed
@@ -253,7 +259,7 @@ func consume(wg *sync.WaitGroup, ch *amqp.Channel, queueName string) {
 					code, status, msg, data := update_store_to_m2(stores)
 					log.Printf("SyncStatus :: STORE => [TranID=%s],[CODE=%d],[MSG=%s]\n", transctionID, code, msg)
 					// create logs
-					add_log(code, transctionID, status, data, msg, "STORE", "", loggerService)
+					add_log(code, transctionID, status, data, msg, "STORE", "", "", loggerService)
 					// send to postflag
 					send_post_flag_queue(code, transctionID, msg, queueService)
 					// complete task, update model status processing to completed
@@ -284,7 +290,7 @@ func consume(wg *sync.WaitGroup, ch *amqp.Channel, queueName string) {
 				code, status, msg, data := send_post_flag_to_erp(postflag)
 				log.Printf("SyncStatus :: POSTFLAG => [TranID=%s],[CODE=%d],[MSG=%s]\n", transctionID, code, msg)
 				// create logs
-				add_log(code, transctionID, status, data, msg, "POSTFLAG", "", loggerService)
+				add_log(code, transctionID, status, data, msg, "POSTFLAG", "", "", loggerService)
 				// complete task, update model status processing to completed
 				queueService.UpdatePostflagQueue(body.ID, "completed")
 			}
@@ -304,14 +310,14 @@ func consume(wg *sync.WaitGroup, ch *amqp.Channel, queueName string) {
 					SyncDate:      body.SyncDate,
 				}
 
-				log.Printf("Received task from %s => %s : %s\n", queueName, "[POSTFLAG]", body.TransactionID)
+				log.Printf("Received task from %s => %s : %s\n", queueName, "[IMAGE]", body.TransactionID)
 				// processing task, update model status pending to processing
 				queueService.UpdateImageQueue(body.ID, "processing")
 				// process the task of image queue
 				code, status, msg, data := update_image_process(image, productService, imageService)
 				log.Printf("SyncStatus :: IMAGE => [TranID=%s],[CODE=%d],[MSG=%s]\n", body.TransactionID, code, msg)
 				// create logs
-				add_log(code, body.TransactionID, status, data, msg, "IMAGE", "", loggerService)
+				add_log(code, body.TransactionID, status, data, msg, "IMAGE", "", body.DirectoryPath+"/"+body.Image, loggerService)
 				// complete task, update model status processing to completed
 				queueService.UpdateImageQueue(body.ID, "completed")
 				// delete task
@@ -339,7 +345,7 @@ func consume(wg *sync.WaitGroup, ch *amqp.Channel, queueName string) {
 				code, status, msg, data := send_dailysale_to_erp(dailysale)
 				log.Printf("SyncStatus :: DAILYSALE => [TranID=%s],[CODE=%d],[MSG=%s]\n", body.TransactionID, code, msg)
 				// create logs
-				add_log(code, body.TransactionID, status, data, msg, "DAILYSALE", dailysale.DocNo, loggerService)
+				add_log(code, body.TransactionID, status, data, msg, "DAILYSALE", dailysale.DocNo, "", loggerService)
 				// complete task, update model status processing to completed
 				queueService.UpdateDailySalesQueue(body.ID, "completed")
 			}
@@ -352,7 +358,7 @@ func consume(wg *sync.WaitGroup, ch *amqp.Channel, queueName string) {
 	<-forever
 }
 
-func add_log(code int, id, status, data, msg, condition, order_id string, service service.LoggerService) {
+func add_log(code int, id, status, data, msg, condition, order_id, image string, service service.LoggerService) {
 	log := request.CreateLogRequest{
 		TransactionID: id,
 		Status:        status,
@@ -362,7 +368,9 @@ func add_log(code int, id, status, data, msg, condition, order_id string, servic
 		SyncDate:      time.Now(),
 	}
 
-	if condition == "ADD" {
+	if condition == "CONNECTION" {
+		service.CreateConnectionLog(log)
+	} else if condition == "ADD" {
 		service.CreateAddLog(log)
 	} else if condition == "UPDATE" {
 		service.CreateUpdateLog(log)
@@ -373,7 +381,17 @@ func add_log(code int, id, status, data, msg, condition, order_id string, servic
 	} else if condition == "POSTFLAG" {
 		service.CreatePostflagLog(log)
 	} else if condition == "IMAGE" {
-		service.CreateImageLog(log)
+		imageLog := request.CreateLogImageRequest{
+			TransactionID: id,
+			Status:        status,
+			StatusCode:    code,
+			Message:       msg,
+			SyncImage:     image,
+			SyncData:      data,
+			SyncDate:      time.Now(),
+		}
+
+		service.CreateImageLog(imageLog)
 	} else if condition == "DAILYSALE" {
 		dailyLog := request.CreateLogDailyRequest{
 			TransactionID: id,
@@ -777,13 +795,13 @@ func update_image_to_m2(image request.CreateImageQueueRequest, sku string) (int,
 
 		// check if image name exist in magento
 		var imageExist int = 0
-		var updatePayload request.CreateMediaRequest
+		var updatePayload request.UpdateMediaRequest
 		for _, media := range mediaPayload {
 			if media.Label == image.Image {
 				imageExist = media.ID
 
-				updatePayload = request.CreateMediaRequest{
-					Entry: request.CreateMediaEntryRequest{
+				updatePayload = request.UpdateMediaRequest{
+					Entry: request.UpdateMediaEntryRequest{
 						ID:        media.ID,
 						MediaType: media.MediaType,
 						Label:     image.Image,
@@ -793,7 +811,7 @@ func update_image_to_m2(image request.CreateImageQueueRequest, sku string) (int,
 						Content: request.CreateMediaContentRequest{
 							Base64EncodedData: imageBase64,
 							Type:              imageMineType,
-							Name:              image.Image,
+							Name:              slug.Make(image.Image),
 						},
 					},
 				}
@@ -811,7 +829,7 @@ func update_image_to_m2(image request.CreateImageQueueRequest, sku string) (int,
 					Content: request.CreateMediaContentRequest{
 						Base64EncodedData: imageBase64,
 						Type:              imageMineType,
-						Name:              image.Image,
+						Name:              slug.Make(image.Image),
 					},
 				},
 			}
@@ -873,7 +891,7 @@ func get_product_by_sku(sku string) (string, int, error) {
 	return getProduct, codeProduct, errProduct
 }
 
-func get_data_from_erp(service service.QueueService) bool {
+func get_data_from_erp(service service.QueueService) (int, string, string, string) {
 	var serviceURL, serviceMethod string
 	if os.Getenv("APP_ENV") == "development" {
 		serviceURL = os.Getenv("STRAPI_URL") + "/main-job-proc-data-api"
@@ -885,7 +903,7 @@ func get_data_from_erp(service service.QueueService) bool {
 
 	req, err := http.NewRequest(serviceMethod, serviceURL, nil)
 	if err != nil {
-		return false
+		return 500, "ERROR", get_msg_from_json(string(err.Error())), "nil"
 	}
 
 	req.Header.Set("Content-Type", "application/json")
@@ -893,14 +911,14 @@ func get_data_from_erp(service service.QueueService) bool {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return false
+		return 500, "ERROR", get_msg_from_json(string(err.Error())), "nil"
 	}
 
 	defer resp.Body.Close()
 
 	responseBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return false
+		return 500, "ERROR", get_msg_from_json(string(err.Error())), "nil"
 	}
 
 	// add main job proc data
@@ -929,14 +947,14 @@ func get_data_from_erp(service service.QueueService) bool {
 
 		resp, err := client.Do(req)
 		if err != nil {
-			return false
+			return 500, "ERROR", get_msg_from_json(string(err.Error())), "nil"
 		}
 
 		defer resp.Body.Close()
 
 		responseBody, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			return false
+			return 500, "ERROR", get_msg_from_json(string(err.Error())), "nil"
 		}
 
 		service.CreateProductsQueue("ADD", responseBody)
@@ -965,14 +983,14 @@ func get_data_from_erp(service service.QueueService) bool {
 
 		resp, err := client.Do(req)
 		if err != nil {
-			return false
+			return 500, "ERROR", get_msg_from_json(string(err.Error())), "nil"
 		}
 
 		defer resp.Body.Close()
 
 		responseBody, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			return false
+			return 500, "ERROR", get_msg_from_json(string(err.Error())), "nil"
 		}
 
 		service.CreateProductsQueue("UPDATE", responseBody)
@@ -1001,14 +1019,14 @@ func get_data_from_erp(service service.QueueService) bool {
 
 		resp, err := client.Do(req)
 		if err != nil {
-			return false
+			return 500, "ERROR", get_msg_from_json(string(err.Error())), "nil"
 		}
 
 		defer resp.Body.Close()
 
 		responseBody, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			return false
+			return 500, "ERROR", get_msg_from_json(string(err.Error())), "nil"
 		}
 
 		service.CreateStockQueue(responseBody)
@@ -1037,20 +1055,20 @@ func get_data_from_erp(service service.QueueService) bool {
 
 		resp, err := client.Do(req)
 		if err != nil {
-			return false
+			return 500, "ERROR", get_msg_from_json(string(err.Error())), "nil"
 		}
 
 		defer resp.Body.Close()
 
 		responseBody, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			return false
+			return 500, "ERROR", get_msg_from_json(string(err.Error())), "nil"
 		}
 
 		service.CreateStoreQueue(responseBody)
 	}
 
-	return true
+	return 200, "Ok", "", "nil"
 }
 
 func send_post_flag_queue(code int, id, msg string, service service.QueueService) {
@@ -1130,8 +1148,8 @@ func send_dailysale_to_erp(dailysale request.CreateDailySalesRequest) (int, stri
 		return 500, "ERROR", get_msg_from_json(string(err.Error())), "nil"
 	}
 
-	fmt.Println("ServiceURL :: ", serviceURL)
-	fmt.Println("send_dailysale_to_erp :: jsonData => ", string(jsonData))
+	// fmt.Println("ServiceURL :: ", serviceURL)
+	// fmt.Println("send_dailysale_to_erp :: jsonData => ", string(jsonData))
 
 	req, err := http.NewRequest("POST", serviceURL, bytes.NewBuffer(jsonData))
 	if err != nil {

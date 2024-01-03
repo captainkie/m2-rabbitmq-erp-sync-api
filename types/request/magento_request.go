@@ -51,6 +51,14 @@ type CreateMediaContentRequest struct {
 }
 
 type CreateMediaEntryRequest struct {
+	MediaType string                    `json:"media_type"`
+	Label     string                    `json:"label"`
+	Position  int                       `json:"position"`
+	Disabled  bool                      `json:"disabled"`
+	Content   CreateMediaContentRequest `json:"content"`
+}
+
+type UpdateMediaEntryRequest struct {
 	ID        int                       `json:"id"`
 	MediaType string                    `json:"media_type"`
 	Label     string                    `json:"label"`
@@ -63,4 +71,8 @@ type CreateMediaEntryRequest struct {
 
 type CreateMediaRequest struct {
 	Entry CreateMediaEntryRequest `json:"entry"`
+}
+
+type UpdateMediaRequest struct {
+	Entry UpdateMediaEntryRequest `json:"entry"`
 }

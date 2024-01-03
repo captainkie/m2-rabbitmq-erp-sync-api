@@ -37,7 +37,6 @@ func NewQueueController(qService service.QueueService, imgService service.ImageS
 // @Router /queue/products [get]
 // @Security BearerAuth
 func (controller *QueueController) ProductsSync(ctx *gin.Context) {
-	// @Security BearerAuth
 	// request to erp system connection
 	requestID := uuid.New().String()
 	controller.queueService.CreateConnectionQueue(requestID)
@@ -76,7 +75,6 @@ func (controller *QueueController) ProductsSync(ctx *gin.Context) {
 // @Router /queue/images [get]
 // @Security BearerAuth
 func (controller *QueueController) ImagesSync(ctx *gin.Context) {
-	// @Security BearerAuth
 	// Get the current date in the format YYYYMMDD.
 	currentDate := time.Now().Format("20060102")
 	// Define the base directory path.
@@ -109,25 +107,32 @@ func (controller *QueueController) ImagesSync(ctx *gin.Context) {
 		}
 	}
 
-	var msg string
 	if len(fileNames) > 0 {
 		// send to queue
-		controller.queueService.CreateImageQueue(fileNames, directoryPath, currentDate)
+		// controller.queueService.CreateImageQueue(fileNames, directoryPath, currentDate)
+		controller.queueService.CreateImageQueue()
 
-		msg = "Successfully create image sync queue!"
+		webResponse := response.Response{
+			Code:    200,
+			Status:  "Ok",
+			Message: "Successfully create image sync queue!",
+			Data:    nil,
+		}
+
+		ctx.Header("Content-Type", "application/json")
+		ctx.JSON(http.StatusOK, webResponse)
+
 	} else {
-		msg = "No files found in the directory."
-	}
+		webResponse := response.Response{
+			Code:    400,
+			Status:  "Failed",
+			Message: "No files found in the directory.",
+			Data:    nil,
+		}
 
-	webResponse := response.Response{
-		Code:    200,
-		Status:  "Ok",
-		Message: msg,
-		Data:    nil,
+		ctx.Header("Content-Type", "application/json")
+		ctx.JSON(http.StatusOK, webResponse)
 	}
-
-	ctx.Header("Content-Type", "application/json")
-	ctx.JSON(http.StatusOK, webResponse)
 }
 
 // DailySales		godoc

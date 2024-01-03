@@ -16,6 +16,11 @@ func NewLoggerRepositoryImpl(Db *gorm.DB) LoggerRepository {
 }
 
 // Create implements LoggerRepository
+func (l *LoggerRepositoryImpl) CreateConnectionLog(log model.ConnectionLogs) {
+	result := l.Db.Create(&log)
+	helpers.ErrorPanic(result.Error)
+}
+
 func (l *LoggerRepositoryImpl) CreateAddLog(log model.AddLogs) {
 	result := l.Db.Create(&log)
 	helpers.ErrorPanic(result.Error)

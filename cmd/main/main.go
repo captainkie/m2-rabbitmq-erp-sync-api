@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"time"
+	_ "time/tzdata"
 
 	"github.com/captainkie/websync-api/config"
 	_ "github.com/captainkie/websync-api/docs"
@@ -41,7 +42,11 @@ func main() {
 	err := godotenv.Load()
 	helpers.ErrorPanic(err)
 
+	os.Setenv("TZ", "Asia/Bangkok")
+
 	go producer()
+	go imageScheduler()
+	go syncProductScheduler()
 
 	initialize()
 }
@@ -68,12 +73,13 @@ func initialize() {
 	db.Table("image_queues").AutoMigrate(&model.ImageQueues{})
 	db.Table("dailysale_queues").AutoMigrate(&model.DailysaleQueues{})
 
+	db.Table("connection_logs").AutoMigrate(&model.ConnectionLogs{})
 	db.Table("add_logs").AutoMigrate(&model.AddLogs{})
 	db.Table("update_logs").AutoMigrate(&model.UpdateLogs{})
 	db.Table("stock_logs").AutoMigrate(&model.StockLogs{})
 	db.Table("store_logs").AutoMigrate(&model.StoreLogs{})
 	db.Table("postflag_logs").AutoMigrate(&model.PostflagLogs{})
-	db.Table("image_logs").AutoMigrate(&model.PostflagLogs{})
+	db.Table("image_logs").AutoMigrate(&model.ImageLogs{})
 	db.Table("dailysale_logs").AutoMigrate(&model.DailysaleLogs{})
 
 	// Init Repository

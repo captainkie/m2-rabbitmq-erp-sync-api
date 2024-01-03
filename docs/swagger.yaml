@@ -249,32 +249,32 @@ definitions:
         description: |-
           TOT_AMT is required && must be decimal 2 digit (จำนวนเงินรวมภาษี)
           Example: 100.00
-        minimum: 1
+        minimum: 0
         type: number
       TOT_DISCAMT:
         description: |-
           TOT_DISCAMT is required && must be decimal 2 digit (จำนวนเงินส่วนลด)
           Example: 100.00
-        minimum: 1
+        minimum: 0
         type: number
       TOT_NETAMT:
         description: |-
           TOT_NETAMT is required && must be decimal 2 digit (จำนวนเงินไม่รวมภาษี)
           Example: 100.00
-        minimum: 1
+        minimum: 0
         type: number
       TOT_SUBAMT:
         description: |-
           TOT_SUBAMT is required && must be decimal 2 digit (จำนวนเงินก่อนหักส่วนลด)
           Example: 100.00
-        minimum: 1
+        minimum: 0
         type: number
       TOT_VATAMT:
         description: |-
           TOT_VATAMT is required && must be decimal 2 digit (จำนวนเงินภาษี)
           It fix value = 0.00
           Example: 100.00
-        minimum: 1
+        minimum: 0
         type: number
       USER_CODE:
         description: |-
@@ -310,11 +310,6 @@ definitions:
     - REMARK2
     - SYS_DATE
     - TAX_ID
-    - TOT_AMT
-    - TOT_DISCAMT
-    - TOT_NETAMT
-    - TOT_SUBAMT
-    - TOT_VATAMT
     - USER_CODE
     - VAT_RATE
     type: object

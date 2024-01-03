@@ -2,6 +2,18 @@ package model
 
 import "time"
 
+type ConnectionLogs struct {
+	ID            int    `gorm:"primaryKey; autoIncrement"`
+	TransactionID string `gorm:"type:varchar(191);not null"`
+	Status        string `gorm:"type:varchar(191);"`
+	StatusCode    int    `gorm:"type:int;"`
+	Message       string `gorm:"type:longtext;"`
+	SyncData      string `gorm:"type:longtext;"`
+	SyncDate      time.Time
+	Created       int64 `gorm:"autoCreateTime"`
+	Updated       int64 `gorm:"autoUpdateTime"`
+}
+
 type AddLogs struct {
 	ID            int    `gorm:"primaryKey; autoIncrement"`
 	TransactionID string `gorm:"type:varchar(191);not null"`
@@ -68,6 +80,7 @@ type ImageLogs struct {
 	Status        string `gorm:"type:varchar(191);"`
 	StatusCode    int    `gorm:"type:int;"`
 	Message       string `gorm:"type:longtext;"`
+	SyncImage     string `gorm:"type:longtext;"`
 	SyncData      string `gorm:"type:longtext;"`
 	SyncDate      time.Time
 	Created       int64 `gorm:"autoCreateTime"`

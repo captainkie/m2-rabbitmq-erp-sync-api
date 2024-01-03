@@ -113,7 +113,7 @@ func prepareSimpleData(product request.AddUpdateProductRequest, token, locale st
         "use_config_backorders": true,
         "notify_stock_qty": 1,
         "use_config_notify_stock_qty": true
-      },`
+      }`
 	}
 
 	jsonStr := []byte(`{"product": {
@@ -155,6 +155,7 @@ func prepareSimpleAttribute(product request.AddUpdateProductRequest, token, loca
 		"product_group":  product.PDGRP_DESC,
 		"product_typeof": product.PDTYPE_DESC,
 		"product_design": product.PDSIZE_TH,
+		"product_model":  product.PDMODEL_DESC,
 		"color":          product.COLOR1,
 		"size":           product.PDSIZE_DESC,
 	}
@@ -163,6 +164,7 @@ func prepareSimpleAttribute(product request.AddUpdateProductRequest, token, loca
 		"product_group":  product.PDGRP_TH,
 		"product_typeof": product.PDTYPE_TH,
 		"product_design": product.PDDSGN_TH,
+		"product_model":  product.PDMODEL_DESC,
 		"color":          product.PDCOLOR_TH,
 		"size":           product.PDSIZE_DESC,
 	}
@@ -213,10 +215,6 @@ func prepareSimpleAttribute(product request.AddUpdateProductRequest, token, loca
 	slugify := slug.Make(product.PDNAME_EN + "-" + product.PROD_CODE)
 
 	productAttr += `
-      {
-        "attribute_code": "product_model",
-        "value": "` + product.PDMODEL_DESC + `"
-      },
       {
         "attribute_code": "product_weight",
         "value": "` + product.WEIGHT + `"

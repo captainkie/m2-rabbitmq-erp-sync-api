@@ -20,6 +20,19 @@ func NewLoggerServiceImpl(loggerRepository repository.LoggerRepository, validate
 }
 
 // Create implements LoggerService
+func (l *LoggerServiceImpl) CreateConnectionLog(log request.CreateLogRequest) {
+	newLog := model.ConnectionLogs{
+		TransactionID: log.TransactionID,
+		Status:        log.Status,
+		StatusCode:    log.StatusCode,
+		Message:       log.Message,
+		SyncData:      log.SyncData,
+		SyncDate:      log.SyncDate,
+	}
+
+	l.LoggerRepository.CreateConnectionLog(newLog)
+}
+
 func (l *LoggerServiceImpl) CreateAddLog(log request.CreateLogRequest) {
 	newLog := model.AddLogs{
 		TransactionID: log.TransactionID,
@@ -85,12 +98,13 @@ func (l *LoggerServiceImpl) CreatePostflagLog(log request.CreateLogRequest) {
 	l.LoggerRepository.CreatePostflagLog(newLog)
 }
 
-func (l *LoggerServiceImpl) CreateImageLog(log request.CreateLogRequest) {
+func (l *LoggerServiceImpl) CreateImageLog(log request.CreateLogImageRequest) {
 	newLog := model.ImageLogs{
 		TransactionID: log.TransactionID,
 		Status:        log.Status,
 		StatusCode:    log.StatusCode,
 		Message:       log.Message,
+		SyncImage:     log.SyncImage,
 		SyncData:      log.SyncData,
 		SyncDate:      log.SyncDate,
 	}
