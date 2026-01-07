@@ -1,0 +1,52 @@
+style: github
+template: CHANGELOG.tpl.md
+info:
+  title: CHANGELOG
+  repository_url: https://gitlab.com/adyim-digital-technology/developer/santas-2025/santas-api
+options:
+  commits:
+    filters:
+      Type:
+        - feat
+        - fix
+        - docs
+        - style
+        - refactor
+        - perf
+        - test
+        - chore
+        - merge
+        - hotfix
+        - release
+    sort_by: Scope
+  commit_groups:
+    title_maps:
+      feat: Added
+      fix: Fixed
+      docs: Documentation
+      style: Style
+      refactor: Changed
+      perf: Performance
+      test: Testing
+      chore: Maintenance
+      merge: Merged
+      hotfix: Hotfix
+      release: Release
+  header:
+    pattern: "^(\\w*)(?:\\(([\\w\\$\\.\\-\\*\\s]*)\\))?\\:\\s(.+)$"
+    pattern_maps:
+      - Type
+      - Scope
+      - Subject
+  notes:
+    keywords:
+      - BREAKING CHANGE
+      - DEPRECATED
+      - SECURITY
+  tag_pattern: "^v?([0-9]+\\.[0-9]+\\.[0-9]+)$"
+  sort: date
+  commit_sort_by: date
+  commit_sort_order: desc
+  jira:
+    pattern: "([A-Z]+-\\d+)"
+    url: https://gitlab.com/adyim-digital-technology/developer/santas-2025/santas-api/issues/

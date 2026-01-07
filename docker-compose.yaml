@@ -1,0 +1,98 @@
+version: "3.8"
+services:
+  proxy:
+    image: nginx:alpine
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./proxy/nginx/conf.d/:/etc/nginx/conf.d/:ro
+      - ./proxy/nginx/ssl/:/etc/nginx/ssl/:ro
+    depends_on:
+      - websync-api
+      - rabbitmq
+    networks:
+      - aws-ec2
+  rabbitmq:
+    image: rabbitmq:3.12.6-management-alpine
+    container_name: rabbitmq
+    restart: always
+    env_file:
+      - ./.env
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    expose:
+      - "15672"
+    volumes:
+      - ./rabbitmq/data/:/var/lib/rabbitmq/
+      - ./rabbitmq/log/:/var/log/rabbitmq/
+      - ./rabbitmq/conf.d/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+    networks:
+      - aws-ec2
+  db:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    env_file:
+      - ./.env
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD:-rootpassword}
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql/data/:/var/lib/mysql/
+      - ./mysql/init/:/docker-entrypoint-initdb.d/:ro
+    networks:
+      - aws-ec2
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "root",
+          "-p${DB_ROOT_PASSWORD:-rootpassword}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  websync-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: websync-api
+    restart: unless-stopped
+    ports:
+      - 9545:9545
+    env_file: ./.env
+    environment:
+      - GIN_MODE=release
+      - TZ=Asia/Bangkok
+    volumes:
+      - ${UPLOAD_HOST_PATH}:/app/go/public
+      - ./.env:/app/go/.env
+    networks:
+      - aws-ec2
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9545/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    depends_on:
+      - rabbitmq
+      - db
+networks:
+  aws-ec2:
+    name: aws-ec2-bridge
+    driver: bridge

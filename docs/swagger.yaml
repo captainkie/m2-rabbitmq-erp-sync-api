@@ -1,0 +1,724 @@
+basePath: /api
+definitions:
+  github_com_captainkie_websync-api_types_request.CreateDailySalesRequest:
+    properties:
+      ADDRESS1:
+        description: |-
+          ADDRESS1 is required && must be between 1 and 50 characters. (ที่อยู่)
+          It must be `${street_adress1}`
+        maxLength: 50
+        minLength: 1
+        type: string
+      ADDRESS2:
+        description: |-
+          ADDRESS2 is required && must be between 1 and 50 characters. (อำเภอ)
+          It must be `${city}`
+        maxLength: 50
+        minLength: 1
+        type: string
+      BRANCH:
+        description: |-
+          BRANCH is required && must be between 0 and 50 characters. ( สาขาของบริษัท - สำหรับใบกำกับภาษีแบบเต็ม)
+          It must be `${company}`
+          If no data Fix value space = " "
+        maxLength: 50
+        minLength: 0
+        type: string
+      CUST_CODE:
+        description: CUST_CODE is required && fix value = "Z00000" (รหัสลูกค้า)
+        type: string
+      CUST_NAME:
+        description: |-
+          CUST_NAME is required && must be between 1 and 50 characters. (ชื่อลูกค้า)
+          It must be `${firstname} ${lastname}`
+        maxLength: 50
+        minLength: 1
+        type: string
+      DISC1:
+        description: |-
+          DISC1 is required && must be decimal 2 digit (อัตตาส่วนลด)
+          It must be `(${discount_total} / ${base_total}) * 100`
+          Example: 100.00
+        minimum: 0
+        type: number
+      DOC_CODE:
+        description: DOC_CODE is required && fixed value = "DS" (ประเภทเอกสาร)
+        minLength: 1
+        type: string
+      DOC_DATE:
+        description: DOC_DATE is required && format = "DD/MM/YYYY" (วันที่เอกสาร)
+        minLength: 1
+        type: string
+      DOC_NO:
+        description: |-
+          DOC_NO is the unique identifier for the order. (หมายเลขคำสั่งซื้อ)
+          It required && must be between 1 and 50 characters.
+        maxLength: 50
+        minLength: 1
+        type: string
+      DOC_STATUS:
+        description: DOC_STATUS is required && fix value = "NP" (สถานะเอกสาร)
+        type: string
+      Detail:
+        description: |-
+          Detail is array od products (รายละเอียดสินค้า)
+          If has shipping price, add shipping product to array (หากมาค่าขนส่งให้เพิ่มสินค้าค่าขนส่งเข้าไปใน array)
+          Example data for shipping product (ตัวอย่างข้อมูลสินค้าค่าขนส่ง)
+          `{`
+          `    "Item": 1,`
+          `    "BAR_CODE": "8852012882769",`
+          `    "PROD_CODE": "ZZSV0   00TRANSPORT",`
+          `    "PROD_DESC": "ค่าขนส่ง (Transportation Charge)",`
+          `    "UOM_CODE": "PCS",`
+          `    "UNIT_PRICE": 500.00,`
+          `    "DISC_RATE": 0.00,`
+          `    "DISC_AMT": 0.00,`
+          `    "VAT_AMT": 0.00,`
+          `    "NET_AMT": 500.00,`
+          `    "AMT": 500.00,`
+          `    "QTY": 1.00,`
+          `    "SALE_PD": "Y",`
+          `    "PROD_STATUS": "N"`
+          `}`
+        items:
+          properties:
+            AMT:
+              description: |-
+                AMT is required && must be decimal 2 digit (จำนวนเงินรวมภาษี)
+                It must be `${item->getBaseRowTotal()}`
+                Example: 100.00
+              type: number
+            BAR_CODE:
+              description: |-
+                BAR_CODE is required. (บาร์โค้ดสินค้า)
+                It must be `${service_bar_code}`
+              type: string
+            DISC_AMT:
+              description: |-
+                DISC_AMT is required && must be decimal 2 digit (จำนวนเงินส่วนลด * item qty)
+                It must be `${discount} * ${item->getQtyOrdered()}`
+                Example: 100.00
+              type: number
+            DISC_RATE:
+              description: |-
+                DISC_RATE is required && must be decimal 2 digit (อัตราส่วนลด)
+                It must be `(${discount} / ${product->getPrice()}) * 100`
+                Example: 100.00
+              type: number
+            ITEM:
+              description: |-
+                ITEM is required. (ลำดับที่)
+                It must be `${index}`
+                Example: 1
+              type: integer
+            NET_AMT:
+              description: |-
+                NET_AMT is required && must be decimal 2 digit (จำนวนเงินไม่รวมภาษี)
+                It must be `${item->getBaseRowTotal()}`
+                Example: 100.00
+              type: number
+            PROD_CODE:
+              description: |-
+                PROD_CODE is required. (รหัสสินค้า)
+                It must be `${sku}`
+              type: string
+            PROD_DESC:
+              description: |-
+                PROD_DESC is required && must be between 1 and 50 characters. (ชื่อสินค้า)
+                It must be `${name}`
+              maxLength: 50
+              minLength: 1
+              type: string
+            PROD_STATUS:
+              description: PROD_STATUS is required &&  fix value = "Y" (สถานะสินค้า)
+              type: string
+            QTY:
+              description: |-
+                QTY is required && must be decimal 2 digit (จำนวน)
+                It must be `${item->getQtyOrdered()}`
+                Example: 100.00
+              type: number
+            SALE_PD:
+              description: SALE_PD is required &&  fix value = "Y" (รหัสพนักงานขาย)
+              maxLength: 50
+              minLength: 0
+              type: string
+            UNIT_PRICE:
+              description: |-
+                UNIT_PRICE is required && must be decimal 2 digit (ราคาต่อหน่วย)
+                It must be `${product->getPrice()}`
+                Example: 100.00
+              type: number
+            UOM_CODE:
+              description: |-
+                UOM_CODE is required. (หน่วยนับ)
+                It must be `${service_uom_code}`
+              type: string
+            VAT_AMT:
+              description: |-
+                VAT_AMT is required && must be decimal 2 digit (ภาษี)
+                It Fix value = 0.00
+                Example: 0.00
+              type: number
+          required:
+            - AMT
+            - BAR_CODE
+            - DISC_AMT
+            - DISC_RATE
+            - ITEM
+            - NET_AMT
+            - PROD_CODE
+            - PROD_DESC
+            - PROD_STATUS
+            - QTY
+            - SALE_PD
+            - UNIT_PRICE
+            - UOM_CODE
+            - VAT_AMT
+          type: object
+        type: array
+      NAME_TITLE:
+        description: |-
+          NAME_TITLE is required && must be between 0 and 50 characters. (คำนำหน้าชื่อ)
+          It must be `${title}`
+          If no data Fix value space = " "
+        maxLength: 50
+        minLength: 0
+        type: string
+      PAY_CODE:
+        description: |-
+          PAY_CODE is required. (รหัสประเภทการจ่ายเงิน)
+          For Credit Card, Fix value = "VISA1"
+          For QR Code,  Fix value = "QR"
+        minLength: 1
+        type: string
+      PAY_DESC:
+        description: |-
+          PAY_DESC is required. (รายละเอียดประเภทการจ่ายเงิน)
+          For Credit Card, Fix value = "VIS1 - VISA ( EDC )"
+          For QR Code,  Fix value = "QR Code"
+        minLength: 1
+        type: string
+      POS_ENTITY:
+        description: POS_ENTITY is required && fixed value = "XXXXX" (รหัสกลุ่มข้อมูล)
+        minLength: 1
+        type: string
+      POSTCODE:
+        description: |-
+          POSTCODE is required && must be between 1 and 50 characters. (รหัสไปรษณีย์)
+          It must be `${zipcode}` or `${postcode}`
+        maxLength: 5
+        minLength: 1
+        type: string
+      PROVINCE:
+        description: |-
+          PROVINCE is required && must be between 1 and 50 characters. (จังหวัด)
+          It must be `${state}` or `${province}`
+        maxLength: 50
+        minLength: 1
+        type: string
+      REF_NO:
+        description: REF_NO is required && fix value space = " " (เลขที่อ้างอิง)
+        maxLength: 50
+        minLength: 0
+        type: string
+      REMARK1:
+        description: REMARK1 is required && must be between 1 and 50 characters. (หมายเลขโทรศัพท์)
+        maxLength: 50
+        minLength: 1
+        type: string
+      REMARK2:
+        description: |-
+          REMARK2 is required && must be between 0 and 50 characters. (อื่นๆ)
+          It fix value space = " "
+        maxLength: 50
+        minLength: 0
+        type: string
+      SYS_DATE:
+        description: SYS_DATE is required && format = "DD/MM/YYYY" (วันที่บันทึก)
+        type: string
+      TAX_ID:
+        description: |-
+          TAX_ID is required && must be between 0 and 50 characters. (เลขที่ผู้เสียภาษี - สำหรับใบกำกับภาษีแบบเต็ม)
+          It must be `${tax_id}`
+          If no data Fix value space = " "
+        maxLength: 50
+        minLength: 0
+        type: string
+      TOT_AMT:
+        description: |-
+          TOT_AMT is required && must be decimal 2 digit (จำนวนเงินรวมภาษี)
+          Example: 100.00
+        minimum: 0
+        type: number
+      TOT_DISCAMT:
+        description: |-
+          TOT_DISCAMT is required && must be decimal 2 digit (จำนวนเงินส่วนลด)
+          Example: 100.00
+        minimum: 0
+        type: number
+      TOT_NETAMT:
+        description: |-
+          TOT_NETAMT is required && must be decimal 2 digit (จำนวนเงินไม่รวมภาษี)
+          Example: 100.00
+        minimum: 0
+        type: number
+      TOT_SUBAMT:
+        description: |-
+          TOT_SUBAMT is required && must be decimal 2 digit (จำนวนเงินก่อนหักส่วนลด)
+          Example: 100.00
+        minimum: 0
+        type: number
+      TOT_VATAMT:
+        description: |-
+          TOT_VATAMT is required && must be decimal 2 digit (จำนวนเงินภาษี)
+          It fix value = 0.00
+          Example: 100.00
+        minimum: 0
+        type: number
+      USER_CODE:
+        description: |-
+          USER_CODE is required && must be between 1 and 50 characters. (ผู้บันทึก)
+          It fix value = "ECOMERCE"
+        type: string
+      VAT_RATE:
+        description: |-
+          VAT_RATE is required && must be decimal 2 digit (อัตราภาษีมูลค่าเพิ่ม)
+          It fix value = 7.00
+          Example: 7.00
+        minimum: 1
+        type: number
+    required:
+      - ADDRESS1
+      - ADDRESS2
+      - BRANCH
+      - CUST_CODE
+      - CUST_NAME
+      - DOC_CODE
+      - DOC_DATE
+      - DOC_NO
+      - DOC_STATUS
+      - Detail
+      - NAME_TITLE
+      - PAY_CODE
+      - PAY_DESC
+      - POSTCODE
+      - POS_ENTITY
+      - PROVINCE
+      - REF_NO
+      - REMARK1
+      - REMARK2
+      - SYS_DATE
+      - TAX_ID
+      - USER_CODE
+      - VAT_RATE
+    type: object
+  github_com_captainkie_websync-api_types_request.CreateUsersRequest:
+    properties:
+      email:
+        maxLength: 100
+        minLength: 1
+        type: string
+      password:
+        maxLength: 100
+        minLength: 1
+        type: string
+      username:
+        maxLength: 100
+        minLength: 1
+        type: string
+    required:
+      - email
+      - password
+      - username
+    type: object
+  github_com_captainkie_websync-api_types_request.LoginRequest:
+    properties:
+      password:
+        maxLength: 100
+        minLength: 1
+        type: string
+      username:
+        maxLength: 100
+        minLength: 1
+        type: string
+    required:
+      - password
+      - username
+    type: object
+  github_com_captainkie_websync-api_types_request.UpdateUsersRequest:
+    properties:
+      password:
+        maxLength: 100
+        minLength: 1
+        type: string
+      role:
+        maxLength: 100
+        minLength: 1
+        type: string
+      status:
+        maxLength: 100
+        minLength: 1
+        type: string
+    required:
+      - password
+      - role
+      - status
+    type: object
+  github_com_captainkie_websync-api_types_response.LoginResponse:
+    properties:
+      token:
+        type: string
+      token_type:
+        type: string
+    type: object
+  github_com_captainkie_websync-api_types_response.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+info:
+  contact:
+    name: captainkie
+    url: https://github.com/captainkie
+  description: This is a sync service data from erp to magento 2.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: WebSync API
+  version: 1.0.0
+paths:
+  /authentication/login:
+    post:
+      description: login with username and password
+      parameters:
+        - description: Login
+          in: body
+          name: Request
+          required: true
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_request.LoginRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_response.LoginResponse"
+        "400":
+          description: Bad Request
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_response.Response"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_response.Response"
+      summary: Login
+      tags:
+        - Authentication
+  /authentication/register:
+    post:
+      description: Register to websync systems
+      parameters:
+        - description: Register
+          in: body
+          name: Request
+          required: true
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_request.CreateUsersRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_response.Response"
+        "400":
+          description: Bad Request
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_response.Response"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_response.Response"
+      summary: Register
+      tags:
+        - Authentication
+  /health:
+    get:
+      consumes:
+        - application/json
+      description: Check if the API is running
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Health check endpoint
+      tags:
+        - Health
+  /health/live:
+    get:
+      description: Get the liveness status of the application
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_response.Response"
+      summary: Check application liveness
+      tags:
+        - Health
+  /health/ready:
+    get:
+      description: Get the readiness status of the application
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_response.Response"
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_response.Response"
+      summary: Check application readiness
+      tags:
+        - Health
+  /queue/daily-sales:
+    post:
+      description: create daily sales queue
+      parameters:
+        - description: CreateDailySales
+          in: body
+          name: Request
+          required: true
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_request.CreateDailySalesRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_response.Response"
+        "400":
+          description: Bad Request
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_response.Response"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_response.Response"
+      security:
+        - BearerAuth: []
+      summary: Daily Sales request queue
+      tags:
+        - Queue
+  /queue/images:
+    get:
+      description: create new queue
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_response.Response"
+        "400":
+          description: Bad Request
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_response.Response"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_response.Response"
+      security:
+        - BearerAuth: []
+      summary: ImageSync data to magento request queue
+      tags:
+        - Queue
+  /queue/products:
+    get:
+      description: create new queue
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_response.Response"
+        "400":
+          description: Bad Request
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_response.Response"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_response.Response"
+      security:
+        - BearerAuth: []
+      summary: ProductsSync Add,Update,Stock,Store request queue
+      tags:
+        - Queue
+  /users:
+    get:
+      description: find all user
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_response.Response"
+        "400":
+          description: Bad Request
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_response.Response"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_response.Response"
+      security:
+        - BearerAuth: []
+      summary: Find All User
+      tags:
+        - Users
+    post:
+      description: create new user
+      parameters:
+        - description: CreateUser
+          in: body
+          name: Request
+          required: true
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_request.CreateUsersRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_response.Response"
+        "400":
+          description: Bad Request
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_response.Response"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_response.Response"
+      security:
+        - BearerAuth: []
+      summary: Create User
+      tags:
+        - Users
+  /users/{id}:
+    delete:
+      description: delete user
+      parameters:
+        - description: id
+          in: path
+          name: id
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_response.Response"
+        "400":
+          description: Bad Request
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_response.Response"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_response.Response"
+      security:
+        - BearerAuth: []
+      summary: Delete User
+      tags:
+        - Users
+    get:
+      description: find by id user
+      parameters:
+        - description: id
+          in: path
+          name: id
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_response.Response"
+        "400":
+          description: Bad Request
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_response.Response"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_response.Response"
+      security:
+        - BearerAuth: []
+      summary: Find By Id User
+      tags:
+        - Users
+    patch:
+      description: update user
+      parameters:
+        - description: id
+          in: path
+          name: id
+          required: true
+          type: integer
+        - description: UpdateUser
+          in: body
+          name: Request
+          required: true
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_request.UpdateUsersRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_response.Response"
+        "400":
+          description: Bad Request
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_response.Response"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/github_com_captainkie_websync-api_types_response.Response"
+      security:
+        - BearerAuth: []
+      summary: Update User
+      tags:
+        - Users
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

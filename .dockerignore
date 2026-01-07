@@ -1,0 +1,53 @@
+# Binary / Executables
+*.dll
+*.so
+*.dylib
+
+# Git and VCS
+.git
+.gitignore
+
+# IDE/editor folders
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Dependency folders (if present)
+vendor/
+node_modules/
+
+# Build tools and local configs
+air.toml
+.env
+.env.*.local
+docker-compose.yml
+docker-compose.yaml
+docker-compose.*.yml
+docker-compose.*.yaml
+Dockerfile
+Makefile
+
+# Logs and temporary files
+*.log
+*.out
+*.tmp
+*.cache
+*.bak
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Test coverage reports
+coverage/
+*.coverprofile
+
+# Optional: test files (if not needed in image)
+*_test.go
+*.test
+
+# Uploads and runtime data (if bind mount externally)
+public/uploads/
+storage/
+runtime/
