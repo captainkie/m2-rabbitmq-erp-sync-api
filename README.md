@@ -201,3 +201,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Author
 
 Captainkiez
+
+---
+
+☕ [Buy me a coffee](https://buymeacoffee.com/captainkiez)
+
+---
